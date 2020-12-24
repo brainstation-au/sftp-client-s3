@@ -1,0 +1,23 @@
+version: "3.9"
+services:
+  sftphost:
+    image: atmoz/sftp:alpine
+    volumes:
+      - ./host/id_foo.pub:/home/foo/.ssh/keys/id_foo.pub:ro
+      - ./host/id_bar.pub:/home/bar/.ssh/keys/id_bar.pub:ro
+      - ./host/users.conf:/etc/sftp/users.conf:ro
+      - ./host/upload/foo:/home/foo/upload
+      - ./host/upload/bar:/home/bar/upload
+      - ./host/download/foo:/home/foo/download
+      - ./host/download/bar:/home/bar/download
+
+  sftpclient:
+    image: node:14-alpine
+    volumes:
+      - ./client:/opt/code
+    depends_on:
+      - sftphost
+    links:
+      - sftphost
+    working_dir: /opt/code
+    command: ./script/run.sh
