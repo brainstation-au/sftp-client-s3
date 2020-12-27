@@ -1,0 +1,46 @@
+{
+  "name": "sftp-client-s3",
+  "version": "1.0.0",
+  "description": "SFTP client to exchange files with S3",
+  "main": "dist/index.js",
+  "scripts": {
+    "clean-up": "rm -rf dist",
+    "test": "jest --forceExit --detectOpenHandles",
+    "watch-test": "npm run test -- --watchAll",
+    "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet",
+    "start": "npm run serve",
+    "build": "npm run lint && npm run build-ts",
+    "serve": "node dist/index.js",
+    "build-test": "npm run clean-up && tsc",
+    "build-ts": "npm run clean-up && tsc -p tsconfig.app.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brainstation-au/sftp-client-s3.git"
+  },
+  "keywords": [
+    "sftp",
+    "s3"
+  ],
+  "author": "khalid@outlook.com.au",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/brainstation-au/sftp-client-s3/issues"
+  },
+  "homepage": "https://github.com/brainstation-au/sftp-client-s3#readme",
+  "dependencies": {
+    "ssh2-sftp-client": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/eslint": "^7.2.6",
+    "@types/jest": "^26.0.19",
+    "@types/node": "^14.14.16",
+    "@types/ssh2-sftp-client": "^5.3.1",
+    "@typescript-eslint/eslint-plugin": "^4.11.0",
+    "@typescript-eslint/parser": "^4.11.0",
+    "eslint": "^7.16.0",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.4.4",
+    "typescript": "^4.1.3"
+  }
+}

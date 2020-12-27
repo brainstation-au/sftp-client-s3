@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "removeComments": true
+  },
+  "exclude": [
+    "./src/test/**/*",
+    "./src/**/*.spec.ts",
+    "./src/**/*.stub.ts",
+    "./src/**/*.mock.ts"
+  ]
+}

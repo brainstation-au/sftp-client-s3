@@ -3,21 +3,29 @@ services:
   sftphost:
     image: atmoz/sftp:alpine
     volumes:
-      - ./host/id_foo.pub:/home/foo/.ssh/keys/id_foo.pub:ro
-      - ./host/id_bar.pub:/home/bar/.ssh/keys/id_bar.pub:ro
+      - ./.ssh/id_ecdsa.pub:/home/ecdsa_user/.ssh/keys/id_ecdsa.pub:ro
+      - ./.ssh/id_ed25519.pub:/home/ed25519_user/.ssh/keys/id_ed25519.pub:ro
+      - ./.ssh/id_rsa.pub:/home/rsa_user/.ssh/keys/id_rsa.pub:ro
       - ./host/users.conf:/etc/sftp/users.conf:ro
-      - ./host/upload/foo:/home/foo/upload
-      - ./host/upload/bar:/home/bar/upload
-      - ./host/download/foo:/home/foo/download
-      - ./host/download/bar:/home/bar/download
+      - ./host/download:/home/ecdsa_user/download
+      - ./host/download:/home/ed25519_user/download
+      - ./host/download:/home/rsa_user/download
 
-  sftpclient:
-    image: node:14-alpine
+  lint:
+    image: node:alpine
     volumes:
       - ./client:/opt/code
+    working_dir: /opt/code
+    command: sh -c "npm install && npm run lint"
+
+  unittest:
+    image: node:alpine
+    volumes:
+      - ./client:/opt/code
+      - ./.ssh:/root/.ssh
     depends_on:
       - sftphost
     links:
       - sftphost
     working_dir: /opt/code
-    command: ./script/run.sh
+    command: sh -c "npm install && bin/wait-for sftphost:22 -t 5 -- npm test"
