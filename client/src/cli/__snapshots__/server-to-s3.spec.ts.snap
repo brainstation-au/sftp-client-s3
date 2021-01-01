@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`server-to-s3 help basic help output on command 1`] = `
+"jest server-to-s3
+
+Download files from SFTP server and put them in S3 bucket
+
+Options:
+      --version                             Show version number        [boolean]
+      --help                                Show help                  [boolean]
+  -h, --host, --sftp-host                   SFTP host IP address or URL
+                                                             [string] [required]
+  -p, --port, --sftp-port                   SFTP host port number
+                                                             [number] [required]
+  -u, --user, --sftp-user                   SFTP username    [string] [required]
+  -k, --key, --private-key                  Private key to authenticate SFTP
+                                            session          [string] [required]
+  -l, --location, --remote-location         Path to the file location in SFTP
+                                            server           [string] [required]
+  -f, --filename, --filename-pattern        Name of the file or a regular
+                                            expression to find a subset
+                                                             [string] [required]
+  -b, --bucket, --bucket-name               S3 bucket name   [string] [required]
+      --key-prefix, --s3-key-prefix,        S3 key prefix to upload the file
+      --s3-key                                               [string] [required]
+  -d, --decrypt                             Decrypt file content with PGP
+                                            private key
+                                                      [boolean] [default: false]"
+`;
+
+exports[`server-to-s3 help basic help output on parent 1`] = `
+"jest [command]
+
+Commands:
+  jest server-to-s3  Download files from SFTP server and put them in S3 bucket
+
+Options:
+  --version  Show version number                                       [boolean]
+  --help     Show help                                                 [boolean]"
+`;
