@@ -30,6 +30,7 @@
   "homepage": "https://github.com/brainstation-au/sftp-client-s3#readme",
   "dependencies": {
     "aws-sdk": "^2.824.0",
+    "moment-timezone": "^0.5.32",
     "runtypes": "^5.0.1",
     "ssh2-sftp-client": "^6.0.0",
     "yargs": "^16.2.0"

@@ -1,5 +1,5 @@
 import { Arguments, Argv } from 'yargs';
-import { serverToS3 } from '../sftp/server-to-s3';
+import { serverToS3 } from '../services/server-to-s3';
 import { ServerToS3Options } from '../types/server-to-s3-options';
 
 export const command = 'server-to-s3';

@@ -1,7 +1,7 @@
 import yargs, { Arguments } from 'yargs';
 import * as s3ToServer from './s3-to-server';
-import * as handler from '../sftp/s3-to-server';
-jest.mock('../sftp/s3-to-server');
+import * as handler from '../services/s3-to-server';
+jest.mock('../services/s3-to-server');
 const mockedHandler = handler as jest.Mocked<typeof handler>;
 
 describe('s3-to-server', () => {

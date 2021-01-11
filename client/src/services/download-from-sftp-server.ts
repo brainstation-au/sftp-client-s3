@@ -1,14 +1,8 @@
-import { S3 } from 'aws-sdk';
 import * as fs from 'fs';
 import * as path from 'path';
 import Client from 'ssh2-sftp-client';
 import { ServerParams } from '../types/server-params';
-import { ServerToS3Options } from '../types/server-to-s3-options';
 import { execute } from './sftp';
-
-export const serverToS3 = async (options: ServerToS3Options): Promise<void> => {
-  console.log(options);
-};
 
 export const downloadFromSftpServer = async (options: ServerParams): Promise<string[]> => {
   const {
@@ -35,13 +29,4 @@ export const downloadFromSftpServer = async (options: ServerParams): Promise<str
 
     return files.map(f => f.localPath);
   });
-};
-
-export const uploadToS3 = async (localPath: string, bucket: string, key: string): Promise<S3.Types.PutObjectOutput> => {
-  const s3 = new S3({apiVersion: '2006-03-01'});
-  return s3.putObject({
-    Body: fs.readFileSync(localPath),
-    Bucket: bucket,
-    Key: key,
-  }).promise();
 };
