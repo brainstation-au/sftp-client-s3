@@ -27,12 +27,12 @@ describe('server-to-s3', () => {
     describe('required params are not available', () => {
       test('with no arguments', async () => {
         await expect(parseArgs('server-to-s3')).rejects
-          .toThrow('Missing required arguments: host, port, user, key, location, filename, bucket, key-prefix');
+          .toThrow('Missing required arguments: host, port, user, key, location, bucket, key-prefix');
       });
 
       test('with few arguments', async () => {
         await expect(parseArgs('server-to-s3 --host sftphost --location /download/from/here -b test-bucket')).rejects
-          .toThrow('Missing required arguments: port, user, key, filename, key-prefix');
+          .toThrow('Missing required arguments: port, user, key, key-prefix');
       });
     });
 
@@ -44,7 +44,6 @@ describe('server-to-s3', () => {
           mockedHandler.serverToS3.mockResolvedValue();
           process.env['SFTP_HOST'] = 'sftphost';
           process.env['SFTP_USER'] = 'test_user';
-          process.env['FILENAME'] = '2020*';
           process.env['KEY_PREFIX'] = 'upload/here';
 
           output = await parseArgs('server-to-s3 --port 22 --k secret-code --location /download/from/here -b test-bucket');
@@ -54,7 +53,6 @@ describe('server-to-s3', () => {
           mockedHandler.serverToS3.mockClear();
           delete process.env['SFTP_HOST'];
           delete process.env['SFTP_USER'];
-          delete process.env['FILENAME'];
           delete process.env['KEY_PREFIX'];
         });
 
@@ -70,7 +68,7 @@ describe('server-to-s3', () => {
             user: 'test_user',
             key: 'secret-code',
             location: '/download/from/here',
-            filename: '2020*',
+            filename: undefined,
             bucket: 'test-bucket',
             keyPrefix: 'upload/here',
             decrypt: false,

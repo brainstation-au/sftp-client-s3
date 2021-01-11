@@ -6,20 +6,20 @@ exports[`s3-to-server help basic help output on command 1`] = `
 Get a file from S3 and upload that on the server
 
 Options:
-      --version                      Show version number               [boolean]
-      --help                         Show help                         [boolean]
-  -h, --host, --sftp-host            SFTP host IP address or URL
+      --version                        Show version number             [boolean]
+      --help                           Show help                       [boolean]
+  -h, --host, --sftp-host              SFTP host IP address or URL
                                                              [string] [required]
-  -p, --port, --sftp-port            SFTP host port number   [number] [required]
-  -u, --user, --sftp-user            SFTP username           [string] [required]
-  -k, --key, --private-key           Private key to authenticate SFTP session
+  -p, --port, --sftp-port              SFTP host port number [number] [required]
+  -u, --user, --sftp-user, --username  SFTP username         [string] [required]
+  -k, --key, --private-key             Private key to authenticate SFTP session
                                                              [string] [required]
-  -l, --location, --remote-location  Path to the file location in SFTP server
+  -l, --location, --remote-location    Path to the file location in SFTP server
                                                              [string] [required]
-  -b, --bucket, --bucket-name        S3 bucket name          [string] [required]
-      --s3-key                       S3 key for the file to upload
+  -b, --bucket, --bucket-name          S3 bucket name        [string] [required]
+      --s3-key                         S3 key for the file to upload
                                                              [string] [required]
-  -e, --encrypt                      Encrypt file content with PGP public key
+  -e, --encrypt                        Encrypt file content with PGP public key
                                                       [boolean] [default: false]"
 `;
 

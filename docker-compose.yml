@@ -23,6 +23,10 @@ services:
     volumes:
       - ./client:/opt/code
       - ./.ssh:/root/.ssh
+      - ./host:/tmp/host
+    environment:
+      - SFTP_HOST_NAME=sftphost
+      - HOST_VOLUME=/tmp/host
     depends_on:
       - sftphost
     links:

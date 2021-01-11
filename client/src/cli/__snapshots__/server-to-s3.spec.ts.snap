@@ -12,14 +12,13 @@ Options:
                                                              [string] [required]
   -p, --port, --sftp-port                   SFTP host port number
                                                              [number] [required]
-  -u, --user, --sftp-user                   SFTP username    [string] [required]
+  -u, --user, --sftp-user, --username       SFTP username    [string] [required]
   -k, --key, --private-key                  Private key to authenticate SFTP
                                             session          [string] [required]
   -l, --location, --remote-location         Path to the file location in SFTP
                                             server           [string] [required]
   -f, --filename, --filename-pattern        Name of the file or a regular
-                                            expression to find a subset
-                                                             [string] [required]
+                                            expression to find a subset [string]
   -b, --bucket, --bucket-name               S3 bucket name   [string] [required]
       --key-prefix, --s3-key-prefix,        S3 key prefix to upload the file
       --s3-key                                               [string] [required]

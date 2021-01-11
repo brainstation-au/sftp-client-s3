@@ -10,25 +10,19 @@ describe('execute', () => {
       await testFn(contentList.map(i => i.name));
     };
 
-    beforeAll(async () => {
-      process.env['SFTP_HOST'] = 'sftphost';
-    });
-
-    afterAll(async () => {
-      delete process.env['SFTP_HOST'];
-    });
-
     ['rsa', 'ecdsa', 'ed25519'].forEach((sshType) => {
       describe(`use ${sshType} key`, () => {
         beforeAll(async () => {
-          process.env['SFTP_USER'] = `${sshType}_user`;
-          process.env['PRIVATE_KEY'] = fs.readFileSync(`/root/.ssh/id_${sshType}`, 'utf-8');
-          await execute(callback);
+          const options: Client.ConnectOptions = {
+            host: 'sftphost',
+            port: 22,
+            username: `${sshType}_user`,
+            privateKey: fs.readFileSync(`/root/.ssh/id_${sshType}`, 'utf-8'),
+          };
+          await execute(options, callback);
         });
 
         afterAll(() => {
-          delete process.env['SFTP_USER'];
-          delete process.env['PRIVATE_KEY'];
           testFn.mockClear();
         });
 
@@ -39,31 +33,38 @@ describe('execute', () => {
     });
 
     describe('use wrong private key', () => {
-      beforeAll(() => {
-        process.env['SFTP_USER'] = 'rsa_user';
-        process.env['PRIVATE_KEY'] = fs.readFileSync('/root/.ssh/id_ecdsa', 'utf-8');
-      });
+      const options: Client.ConnectOptions = {
+        host: 'sftphost',
+        port: 22,
+        username: 'rsa_user',
+        privateKey: fs.readFileSync('/root/.ssh/id_ecdsa', 'utf-8'),
+      };
 
       afterAll(() => {
-        delete process.env['SFTP_USER'];
-        delete process.env['PRIVATE_KEY'];
         testFn.mockClear();
       });
 
       test('client can not connect to sftp host', async () => {
-        await expect(execute(callback)).rejects.toThrow('connect: sftpConnect: All configured authentication methods failed');
+        await expect(execute(options, callback)).rejects.toThrow('connect: sftpConnect: All configured authentication methods failed');
+      });
+    });
+
+    describe('returns the response from callback', () => {
+      const returnValue = {foo: 'bar'};
+      const options: Client.ConnectOptions = {
+        host: 'sftphost',
+        port: 22,
+        username: 'rsa_user',
+        privateKey: fs.readFileSync('/root/.ssh/id_rsa', 'utf-8'),
+      };
+
+      afterAll(() => {
+        testFn.mockClear();
+      });
+
+      test('client can not connect to sftp host', async () => {
+        await expect(execute(options, () => Promise.resolve(returnValue))).resolves.toEqual(returnValue);
       });
     });
   });
-
-  // describe('download files from sftp host', () => {
-  //   const randomFiles = [];
-  //   beforeAll(() => {});
-
-  //   afterAll(() => {});
-
-  //   describe('download all files', () => {});
-
-  //   describe('download only files maching patterns', () => {});
-  // });
 });

@@ -26,7 +26,7 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
     type: 'number',
   })
   .option('user', {
-    alias: ['sftp-user', 'u'],
+    alias: ['sftp-user', 'username', 'u'],
     default: process.env['SFTP_USER'],
     demandOption: !('SFTP_USER' in process.env),
     description: 'SFTP username',
@@ -55,10 +55,8 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
   .option('filename', {
     alias: ['filename-pattern', 'f'],
     default: process.env['FILENAME'],
-    demandOption: !('FILENAME' in process.env),
     description: 'Name of the file or a regular expression to find a subset',
     nargs: 1,
-    requiresArg: true,
     type: 'string',
   })
   .option('bucket', {
