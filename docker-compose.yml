@@ -27,6 +27,7 @@ services:
     environment:
       - SFTP_HOST_NAME=sftphost
       - HOST_VOLUME=/tmp/host
+      - AWS_DEFAULT_REGION=ap-southeast-2
     depends_on:
       - sftphost
     links:
