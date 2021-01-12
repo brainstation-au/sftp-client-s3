@@ -55,7 +55,7 @@ Options:
 $ docker run brainstation/sftp-client-s3 s3-to-server --help
 sftp-client s3-to-server
 
-Get a file from S3 and upload that on the server
+Get a file from S3 and upload that on the SFTP server
 
 Options:
       --version                        Show version number             [boolean]
@@ -109,7 +109,7 @@ $ docker run brainstation/sftp-client-s3 server-to-s3 \
     --key-prefix [my-project/section-1/year=]YYYY/[month=]MM/[day=]DD/
 ```
 
-*If you running the above command on 2021-01-01 UTC, the actual --key-prefix would be my-project/section-1/year=2021/month=01/day=01/*
+*Suppose you ran the above command on 2021-01-01 UTC, the actual --key-prefix would have been `my-project/section-1/year=2021/month=01/day=01/`*
 
 ### S3 to SFTP server
 ```sh
