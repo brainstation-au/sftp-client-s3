@@ -41,7 +41,7 @@ describe('s3-to-server', () => {
         let output: string;
 
         beforeAll(async () => {
-          mockedHandler.s3ToServer.mockResolvedValue();
+          mockedHandler.s3ToServer.mockResolvedValue('uploaded');
           process.env['SFTP_HOST'] = 'sftphost';
           process.env['SFTP_USER'] = 'test_user';
           process.env['S3_KEY'] = 'upload/here/filename.txt';

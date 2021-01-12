@@ -10,13 +10,30 @@ services:
       - ./host/download:/home/ecdsa_user/download
       - ./host/download:/home/ed25519_user/download
       - ./host/download:/home/rsa_user/download
+      - ./host/upload:/home/ecdsa_user/upload
+      - ./host/upload:/home/ed25519_user/upload
+      - ./host/upload:/home/rsa_user/upload
+
+  install:
+    image: node:alpine
+    volumes:
+      - ./client:/opt/code
+    working_dir: /opt/code
+    command: sh -c "npm install"
+
+  build:
+    image: node:alpine
+    volumes:
+      - ./client:/opt/code
+    working_dir: /opt/code
+    command: sh -c "npm run build-ts"
 
   lint:
     image: node:alpine
     volumes:
       - ./client:/opt/code
     working_dir: /opt/code
-    command: sh -c "npm install && npm run lint"
+    command: sh -c "npm run lint"
 
   unittest:
     image: node:alpine
@@ -33,4 +50,4 @@ services:
     links:
       - sftphost
     working_dir: /opt/code
-    command: sh -c "npm install && bin/wait-for sftphost:22 -t 5 -- npm test"
+    command: sh -c "bin/wait-for sftphost:22 -t 5 -- npm test"

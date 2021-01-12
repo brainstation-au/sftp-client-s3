@@ -76,7 +76,7 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
     type: 'boolean',
   });
 
-export const handler = (argv: Arguments): void | Promise<void> => {
+export const handler = (argv: Arguments): Promise<string> => {
   const options = S3ToServerOptions.check(argv);
   return s3ToServer(options);
 };
