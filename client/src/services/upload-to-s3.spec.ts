@@ -33,7 +33,7 @@ describe('uploadToS3', () => {
 
   test('calls putobject with right params', () => {
     expect(putObjectFn).toHaveBeenCalledWith(expect.objectContaining({
-      Body: Buffer.from(content, 'utf-8'),
+      Body: Buffer.from(content),
       Bucket: bucket,
       Key: key,
     }));

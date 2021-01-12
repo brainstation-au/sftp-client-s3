@@ -27,12 +27,12 @@ describe('server-to-s3', () => {
     describe('required params are not available', () => {
       test('with no arguments', async () => {
         await expect(parseArgs('server-to-s3')).rejects
-          .toThrow('Missing required arguments: host, port, user, key, location, bucket, key-prefix');
+          .toThrow('Missing required arguments: host, user, key, location, bucket, key-prefix');
       });
 
       test('with few arguments', async () => {
         await expect(parseArgs('server-to-s3 --host sftphost --location /download/from/here -b test-bucket')).rejects
-          .toThrow('Missing required arguments: port, user, key, key-prefix');
+          .toThrow('Missing required arguments: user, key, key-prefix');
       });
     });
 

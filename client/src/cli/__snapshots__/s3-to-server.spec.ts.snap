@@ -3,14 +3,15 @@
 exports[`s3-to-server help basic help output on command 1`] = `
 "jest s3-to-server
 
-Get a file from S3 and upload that on the server
+Get a file from S3 and upload that on the SFTP server
 
 Options:
       --version                        Show version number             [boolean]
       --help                           Show help                       [boolean]
   -h, --host, --sftp-host              SFTP host IP address or URL
                                                              [string] [required]
-  -p, --port, --sftp-port              SFTP host port number [number] [required]
+  -p, --port, --sftp-port              SFTP host port number
+                                                          [number] [default: 22]
   -u, --user, --sftp-user, --username  SFTP username         [string] [required]
   -k, --key, --private-key             Private key to authenticate SFTP session
                                                              [string] [required]
@@ -27,7 +28,7 @@ exports[`s3-to-server help basic help output on parent 1`] = `
 "jest [command]
 
 Commands:
-  jest s3-to-server  Get a file from S3 and upload that on the server
+  jest s3-to-server  Get a file from S3 and upload that on the SFTP server
 
 Options:
   --version  Show version number                                       [boolean]

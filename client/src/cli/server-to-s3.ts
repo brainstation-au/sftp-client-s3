@@ -19,10 +19,8 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
   .option('port', {
     alias: ['sftp-port', 'p'],
     default: process.env['SFTP_PORT'] || 22,
-    demandOption: !('SFTP_PORT' in process.env),
     description: 'SFTP host port number',
     nargs: 1,
-    requiresArg: true,
     type: 'number',
   })
   .option('user', {
