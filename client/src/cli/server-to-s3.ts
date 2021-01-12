@@ -18,7 +18,7 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
   })
   .option('port', {
     alias: ['sftp-port', 'p'],
-    default: process.env['SFTP_PORT'],
+    default: process.env['SFTP_PORT'] || 22,
     demandOption: !('SFTP_PORT' in process.env),
     description: 'SFTP host port number',
     nargs: 1,
@@ -69,7 +69,7 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
     type: 'string',
   })
   .option('key-prefix', {
-    alias: ['s3-key-prefix', 's3-key'],
+    alias: ['s3-key-prefix'],
     default: process.env['KEY_PREFIX'],
     demandOption: !('KEY_PREFIX' in process.env),
     description: 'S3 key prefix to upload the file',

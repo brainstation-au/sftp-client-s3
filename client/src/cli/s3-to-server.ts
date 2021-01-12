@@ -4,7 +4,7 @@ import { S3ToServerOptions } from '../types/s3-to-server-options';
 
 export const command = 's3-to-server';
 
-export const description = 'Get a file from S3 and upload that on the server';
+export const description = 'Get a file from S3 and upload that on the SFTP server';
 
 export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
   .option('host', {
@@ -18,7 +18,7 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
   })
   .option('port', {
     alias: ['sftp-port', 'p'],
-    default: process.env['SFTP_PORT'],
+    default: process.env['SFTP_PORT'] || 22,
     demandOption: !('SFTP_PORT' in process.env),
     description: 'SFTP host port number',
     nargs: 1,
