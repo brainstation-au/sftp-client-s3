@@ -48,7 +48,7 @@ Options:
                                                       [boolean] [default: false]
 ```
 
-**The value for --key-prefix option will be passed through [moment format](https://momentjs.com/docs/#/displaying/format/) function to enable data time values in the S3 key.**
+**The value for --key-prefix option will be passed through [moment format](https://momentjs.com/docs/#/displaying/format/) function to enable date time values in the S3 key.**
 
 ### S3 to Server
 ```sh
@@ -108,6 +108,8 @@ $ docker run brainstation/sftp-client-s3 server-to-s3 \
     -b my-bucket \
     --key-prefix [my-project/section-1/year=]YYYY/[month=]MM/[day=]DD/
 ```
+
+*If you running the above command on 2021-01-01 UTC, the actual --key-prefix would be my-project/section-1/year=2021/month=01/day=01/*
 
 ### S3 to SFTP server
 ```sh
