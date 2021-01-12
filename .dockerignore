@@ -1,0 +1,8 @@
+.ssh/
+host/
+docker-compose.yml
+README.md
+client/bin/
+client/coverage/
+client/node_modules/
+client/dist/

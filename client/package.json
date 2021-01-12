@@ -2,7 +2,7 @@
   "name": "sftp-client-s3",
   "version": "1.0.0",
   "description": "SFTP client to exchange files with S3",
-  "main": "dist/index.js",
+  "main": "dist/cli/index.js",
   "scripts": {
     "clean-up": "rm -rf dist",
     "test": "jest --forceExit --detectOpenHandles",
@@ -12,7 +12,7 @@
     "build": "npm run lint && npm run build-ts",
     "serve": "node dist/index.js",
     "build-test": "npm run clean-up && tsc",
-    "build-ts": "npm run clean-up && tsc -p tsconfig.app.json"
+    "build-ts": "tsc -p tsconfig.app.json"
   },
   "repository": {
     "type": "git",

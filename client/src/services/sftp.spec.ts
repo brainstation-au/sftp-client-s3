@@ -45,7 +45,7 @@ describe('execute', () => {
       });
 
       test('client can not connect to sftp host', async () => {
-        await expect(execute(options, callback)).rejects.toThrow('connect: sftpConnect: All configured authentication methods failed');
+        await expect(execute(options, callback)).rejects.toThrow('sftpConnect: All configured authentication methods failed');
       });
     });
 
