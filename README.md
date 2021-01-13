@@ -38,14 +38,21 @@ Options:
                                             session          [string] [required]
   -l, --location, --remote-location         Path to the file location in SFTP
                                             server           [string] [required]
+  -r, --remove, --rm, --delete              Delete remote files after
+                                            successfull upload to S3
+                                                      [boolean] [default: false]
   -f, --filename, --filename-pattern        Name of the file or a regular
                                             expression to find a subset [string]
   -b, --bucket, --bucket-name               S3 bucket name   [string] [required]
-      --key-prefix, --s3-key-prefix,        S3 key prefix to upload the file
+      --key-prefix-format,                  A [moment format](https://momentjs.c
+      --s3-key-prefix-format                om/docs/#/displaying/format/) of S3
+                                            key prefix to upload the file
                                                              [string] [required]
-  -d, --decrypt                             Decrypt file content with PGP
+  -d, --decrypt                             Decrypt file content with GPG
                                             private key
                                                       [boolean] [default: false]
+      --gpg-private-key                     GPG private key to decrypt file
+                                            content                     [string]
 ```
 
 **The value for --key-prefix option will be passed through [moment format](https://momentjs.com/docs/#/displaying/format/) function to enable date time values in the S3 key.**
@@ -72,8 +79,10 @@ Options:
   -b, --bucket, --bucket-name          S3 bucket name        [string] [required]
       --s3-key                         S3 key for the file to upload
                                                              [string] [required]
-  -e, --encrypt                        Encrypt file content with PGP public key
+  -e, --encrypt                        Encrypt file content with GPG public key
                                                       [boolean] [default: false]
+      --gpg-public-key                 GPG public key to encrypt file content
+                                                                        [string]
 ```
 
 *PGP encryption and decryption is not implemented yet*
@@ -89,9 +98,11 @@ Options:
 | FILENAME  | Name of the file or a regular expression to find a subset  |
 | BUCKET_NAME  | S3 bucket name  |
 | S3_KEY  | S3 key for the file to upload  |
-| KEY_PREFIX  | S3 key prefix to upload the file  |
+| KEY_PREFIX_FORMAT  | S3 key prefix to upload the file  |
 | ENCRYPT  | Encrypt file content with PGP public key  |
+| GPG_PUBLIC_KEY  | GPG public key to encrypt file content  |
 | DECRYPT  | Decrypt file content with PGP private key  |
+| GPG_PRIVATE_KEY  | GPG private key to decrypt file content  |
 
 *When a combination of the above environment variables are present, corresponding command options become optional. But if you provide value for a command option, that has higher priority over environemnt variable.*
 

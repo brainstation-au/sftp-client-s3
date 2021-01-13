@@ -3,7 +3,7 @@ import { ServerParams } from './server-params';
 
 export const ServerToS3Options = Record({
   bucket: String,
-  keyPrefix: String,
+  keyPrefixFormat: String,
 })
   .And(Partial({
     rm: Boolean,

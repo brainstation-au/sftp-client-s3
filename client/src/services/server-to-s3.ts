@@ -11,9 +11,9 @@ export const serverToS3 = async (options: ServerToS3Options): Promise<void> => {
   const localDir = fs.mkdtempSync(storageLocation);
   const files = await downloadFromSftpServer(options, localDir);
 
-  const {bucket, keyPrefix} = options;
-  const normalisedKeyPrefix = moment().tz('utc').format(keyPrefix);
+  const {bucket, keyPrefixFormat} = options;
+  const keyPrefix = moment().tz('utc').format(keyPrefixFormat);
   for (const file of files) {
-    await uploadToS3(path.join(localDir, file), bucket, `${normalisedKeyPrefix}${file}`);
+    await uploadToS3(path.join(localDir, file), bucket, `${keyPrefix}${file}`);
   }
 };

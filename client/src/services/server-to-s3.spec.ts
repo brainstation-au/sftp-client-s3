@@ -21,7 +21,7 @@ describe('serverToS3', () => {
     location: '/download',
     filename: '*.txt',
     bucket: 'my-bucket',
-    keyPrefix: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
+    keyPrefixFormat: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
     decrypt: false,
   };
   const date = moment().tz('utc');

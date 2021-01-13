@@ -72,11 +72,11 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
     requiresArg: true,
     type: 'string',
   })
-  .option('key-prefix', {
-    alias: ['s3-key-prefix'],
-    default: process.env['KEY_PREFIX'],
-    demandOption: !('KEY_PREFIX' in process.env),
-    description: 'S3 key prefix to upload the file',
+  .option('key-prefix-format', {
+    alias: ['s3-key-prefix-format'],
+    default: process.env['KEY_PREFIX_FORMAT'],
+    demandOption: !('KEY_PREFIX_FORMAT' in process.env),
+    description: 'A [moment format](https://momentjs.com/docs/#/displaying/format/) of S3 key prefix to upload the file',
     nargs: 1,
     requiresArg: true,
     type: 'string',
