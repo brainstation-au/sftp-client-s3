@@ -14,16 +14,15 @@ export const downloadFromSftpServer = async (options: ServerParams, localDir: st
   } = options;
 
   return execute({host, port, username, privateKey}, async (client: Client): Promise<string[]> => {
-    const files: Array<{remotePath: string; localPath: string}> = await (filename ? client.list(location, filename) : client.list(location))
-      .then(l => l.map(f => ({
-        remotePath: path.join(location, f.name),
-        localPath: path.join(localDir, f.name),
-      })));
+    const files: string[] = await (filename ? client.list(location, filename) : client.list(location))
+      .then(l => l.map(f => f.name));
 
     for (const file of files) {
-      await client.fastGet(file.remotePath, file.localPath);
+      const remotePath = path.join(location, file);
+      const localPath = path.join(localDir, file);
+      await client.fastGet(remotePath, localPath);
     }
 
-    return files.map(f => f.localPath);
+    return files;
   });
 };

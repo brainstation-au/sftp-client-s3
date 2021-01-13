@@ -32,7 +32,7 @@ describe('downloadFromSftpServer', () => {
       privateKey: fs.readFileSync('/root/.ssh/id_rsa', 'utf-8'),
       location: contentPath,
       filename: undefined,
-    }, localDir)).resolves.toEqual(expect.arrayContaining(allFilename.map(f => path.join(localDir, f))));
+    }, localDir)).resolves.toEqual(expect.arrayContaining(allFilename));
   });
 
   test('downloads a subset of files when there is a filename pattern', async () => {
@@ -43,6 +43,6 @@ describe('downloadFromSftpServer', () => {
       privateKey: fs.readFileSync('/root/.ssh/id_rsa', 'utf-8'),
       location: contentPath,
       filename: '*.txt',
-    }, localDir)).resolves.toEqual(expect.arrayContaining(randonFilename.map(f => path.join(localDir, f))));
+    }, localDir)).resolves.toEqual(expect.arrayContaining(randonFilename));
   });
 });

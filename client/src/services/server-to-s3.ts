@@ -9,11 +9,11 @@ export const serverToS3 = async (options: ServerToS3Options): Promise<void> => {
   const storageLocation = process.env['STORAGE_LOCATION'] || '/tmp/';
   fs.mkdirSync(storageLocation, {recursive: true});
   const localDir = fs.mkdtempSync(storageLocation);
-  const localPaths = await downloadFromSftpServer(options, localDir);
+  const files = await downloadFromSftpServer(options, localDir);
 
   const {bucket, keyPrefix} = options;
   const normalisedKeyPrefix = moment().tz('utc').format(keyPrefix);
-  for (const localPath of localPaths) {
-    await uploadToS3(localPath, bucket, `${normalisedKeyPrefix}${path.basename(localPath)}`);
+  for (const file of files) {
+    await uploadToS3(path.join(localDir, file), bucket, `${normalisedKeyPrefix}${file}`);
   }
 };

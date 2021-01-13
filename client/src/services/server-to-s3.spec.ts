@@ -1,10 +1,14 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import moment from 'moment-timezone';
 import { ServerToS3Options } from '../types/server-to-s3-options';
 import * as download from './download-from-sftp-server';
 import { serverToS3 } from './server-to-s3';
 import * as upload from './upload-to-s3';
+jest.mock('fs');
 jest.mock('./download-from-sftp-server');
 jest.mock('./upload-to-s3');
+const mockedFs = fs as jest.Mocked<typeof fs>;
 const mockedDownload = download as jest.Mocked<typeof download>;
 const mockedUpload = upload as jest.Mocked<typeof upload>;
 
@@ -24,9 +28,12 @@ describe('serverToS3', () => {
   const year = date.format('YYYY');
   const month = date.format('MM');
   const day = date.format('DD');
+  const localDir = '/tmp/qwerty/';
 
   beforeAll(async () => {
-    mockedDownload.downloadFromSftpServer.mockResolvedValueOnce(['/tmp/qwerty/foo.txt', '/tmp/qwerty/bar.txt']);
+    mockedFs.mkdirSync.mockImplementation();
+    mockedFs.mkdtempSync.mockImplementation(() => localDir);
+    mockedDownload.downloadFromSftpServer.mockResolvedValueOnce(['foo.txt', 'bar.txt']);
     mockedUpload.uploadToS3.mockResolvedValue({});
     await serverToS3(options);
   });
@@ -34,6 +41,8 @@ describe('serverToS3', () => {
   afterAll(() => {
     mockedDownload.downloadFromSftpServer.mockClear();
     mockedUpload.uploadToS3.mockClear();
+    mockedFs.mkdirSync.mockClear();
+    mockedFs.mkdtempSync.mockClear();
   });
 
   test('upload to s3 was called for both the files', () => {
@@ -42,12 +51,12 @@ describe('serverToS3', () => {
 
   test('upload to s3 was called with right params', () => {
     expect(mockedUpload.uploadToS3).toHaveBeenCalledWith(
-      '/tmp/qwerty/foo.txt',
+      path.join(localDir, 'foo.txt'),
       'my-bucket',
       `my-project/foo/year=${year}/month=${month}/day=${day}/foo.txt`
     );
     expect(mockedUpload.uploadToS3).toHaveBeenCalledWith(
-      '/tmp/qwerty/bar.txt',
+      path.join(localDir, 'bar.txt'),
       'my-bucket',
       `my-project/foo/year=${year}/month=${month}/day=${day}/bar.txt`
     );
