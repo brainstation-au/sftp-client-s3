@@ -17,13 +17,17 @@ Options:
                                                              [string] [required]
   -l, --location, --remote-location    Path to the file location in SFTP server
                                                              [string] [required]
+  -r, --remove, --rm, --delete         Delete remote files after successfull
+                                       upload to S3   [boolean] [default: false]
   -f, --filename, --filename-pattern   Name of the file or a regular expression
                                        to find a subset                 [string]
   -b, --bucket, --bucket-name          S3 bucket name        [string] [required]
       --key-prefix, --s3-key-prefix    S3 key prefix to upload the file
                                                              [string] [required]
-  -d, --decrypt                        Decrypt file content with PGP private key
-                                                      [boolean] [default: false]"
+  -d, --decrypt                        Decrypt file content with GPG private key
+                                                      [boolean] [default: false]
+      --gpg-private-key                GPG private key to decrypt file content
+                                                                        [string]"
 `;
 
 exports[`server-to-s3 help basic help output on parent 1`] = `

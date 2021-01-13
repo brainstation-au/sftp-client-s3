@@ -50,6 +50,12 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
     requiresArg: true,
     type: 'string',
   })
+  .option('remove', {
+    alias: ['rm', 'r', 'delete'],
+    default: process.env['DELETE_REMOTE'] === 'true' || false,
+    description: 'Delete remote files after successfull upload to S3',
+    type: 'boolean',
+  })
   .option('filename', {
     alias: ['filename-pattern', 'f'],
     default: process.env['FILENAME'],
@@ -77,9 +83,16 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
   })
   .option('decrypt', {
     alias: ['d'],
-    default: process.env['DECRYPT'] || false,
-    description: 'Decrypt file content with PGP private key',
+    default: process.env['DECRYPT'] === 'true' || false,
+    description: 'Decrypt file content with GPG private key',
     type: 'boolean',
+    implies: ['gpg-private-key'],
+  })
+  .option('gpg-private-key', {
+    default: process.env['GPG_PRIVATE_KEY'],
+    description: 'GPG private key to decrypt file content',
+    nargs: 1,
+    type: 'string',
   });
 
 export const handler = async (argv: Arguments): Promise<void> => {
