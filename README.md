@@ -87,8 +87,6 @@ Options:
                                                                         [string]
 ```
 
-*PGP encryption and decryption is not implemented yet*
-
 ## Environment variables
 | Name  | Description |
 | --- | --- |
