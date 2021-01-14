@@ -31,7 +31,9 @@ Options:
                                             private key
                                                       [boolean] [default: false]
       --gpg-private-key                     GPG private key to decrypt file
-                                            content                     [string]"
+                                            content                     [string]
+      --gpg-passphrase, --gpg-password      Passphrase to decrypt GPG private
+                                            key                         [string]"
 `;
 
 exports[`server-to-s3 help basic help output on parent 1`] = `

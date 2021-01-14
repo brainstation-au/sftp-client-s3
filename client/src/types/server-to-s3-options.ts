@@ -13,6 +13,7 @@ export const ServerToS3Options = Record({
   }).Or(Record({
     decrypt: Literal(true),
     gpgPrivateKey: String,
+    passphrase: String,
   })))
   .And(ServerParams)
   .And(

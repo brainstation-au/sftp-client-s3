@@ -93,6 +93,13 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
     description: 'GPG private key to decrypt file content',
     nargs: 1,
     type: 'string',
+  })
+  .option('gpg-passphrase', {
+    alias: ['gpg-password'],
+    default: process.env['GPG_PASSPHRASE'],
+    description: 'Passphrase to decrypt GPG private key',
+    nargs: 1,
+    type: 'string',
   });
 
 export const handler = async (argv: Arguments): Promise<void> => {

@@ -3,8 +3,8 @@ import * as path from 'path';
 import { downloadFromSftpServer } from './download-from-sftp-server';
 
 describe('downloadFromSftpServer', () => {
-  const contentPath = '/download';
-  const hostDir = path.join(process.env['HOST_VOLUME'] || '', contentPath);
+  const remoteLocation = '/download';
+  const hostDir = path.join(process.env['HOST_VOLUME'] || '', remoteLocation);
   const localDir = '/tmp/foo/';
   const randonFilename: string[] = [
     'foo.txt',
@@ -30,7 +30,7 @@ describe('downloadFromSftpServer', () => {
       port: 22,
       username: 'rsa_user',
       privateKey: fs.readFileSync('/root/.ssh/id_rsa', 'utf-8'),
-      location: contentPath,
+      location: remoteLocation,
       filename: undefined,
     }, localDir)).resolves.toEqual(expect.arrayContaining(allFilename));
   });
@@ -41,7 +41,7 @@ describe('downloadFromSftpServer', () => {
       port: 22,
       username: 'rsa_user',
       privateKey: fs.readFileSync('/root/.ssh/id_rsa', 'utf-8'),
-      location: contentPath,
+      location: remoteLocation,
       filename: '*.txt',
     }, localDir)).resolves.toEqual(expect.arrayContaining(randonFilename));
   });

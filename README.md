@@ -53,6 +53,8 @@ Options:
                                                       [boolean] [default: false]
       --gpg-private-key                     GPG private key to decrypt file
                                             content                     [string]
+      --gpg-passphrase, --gpg-password      Passphrase to decrypt GPG private
+                                            key                         [string]
 ```
 
 **The value for --key-prefix option will be passed through [moment format](https://momentjs.com/docs/#/displaying/format/) function to enable date time values in the S3 key.**
@@ -103,6 +105,7 @@ Options:
 | GPG_PUBLIC_KEY  | GPG public key to encrypt file content  |
 | DECRYPT  | Decrypt file content with PGP private key  |
 | GPG_PRIVATE_KEY  | GPG private key to decrypt file content  |
+| GPG_PASSPHRASE  | Passphrase to decrypt GPG private key  |
 
 *When a combination of the above environment variables are present, corresponding command options become optional. But if you provide value for a command option, that has higher priority over environemnt variable.*
 
