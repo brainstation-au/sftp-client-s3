@@ -69,9 +69,16 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
   })
   .option('encrypt', {
     alias: ['e'],
-    default: process.env['ENCRYPT'] || false,
-    description: 'Encrypt file content with PGP public key',
+    default: process.env['ENCRYPT'] === 'true' || false,
+    description: 'Encrypt file content with GPG public key',
     type: 'boolean',
+    implies: ['gpg-public-key'],
+  })
+  .option('gpg-public-key', {
+    default: process.env['GPG_PUBLIC_KEY'],
+    description: 'GPG public key to encrypt file content',
+    nargs: 1,
+    type: 'string',
   });
 
 export const handler = (argv: Arguments): Promise<string> => {

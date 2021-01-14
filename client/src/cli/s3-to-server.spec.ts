@@ -34,6 +34,36 @@ describe('s3-to-server', () => {
         await expect(parseArgs('s3-to-server --host sftphost --location /download/from/here -b test-bucket')).rejects
           .toThrow('Missing required arguments: user, key, s3-key');
       });
+
+      describe('gpg key is required when encrypt is true in environment variable', () => {
+        beforeAll(() => {
+          process.env['SFTP_USER'] = 'test_user';
+          process.env['PRIVATE_KEY'] = 'something';
+          process.env['S3_KEY'] = 'foo/bar.txt';
+          process.env['ENCRYPT'] = 'true';
+        });
+
+        afterAll(() => {
+          delete process.env['SFTP_USER'];
+          delete process.env['PRIVATE_KEY'];
+          delete process.env['S3_KEY'];
+          delete process.env['ENCRYPT'];
+        });
+
+        test('throws error', async () => {
+          await expect(parseArgs('s3-to-server --host sftphost --location /download/from/here -b test-bucket')).rejects
+            .toThrow('Missing dependent arguments:\n encrypt -> gpg-public-key');
+        });
+      });
+
+      describe('gpg key is required when encrypt is flagged in command options', () => {
+        test('throws error', async () => {
+          await expect(parseArgs(
+            's3-to-server -h sftphost -u test_user -k something --s3-key foo/bar.txt -e -l /download/from/here -b test-bucket'
+          )).rejects
+            .toThrow('Missing dependent arguments:\n encrypt -> gpg-public-key');
+        });
+      });
     });
 
     describe('required params are available', () => {

@@ -27,12 +27,42 @@ describe('server-to-s3', () => {
     describe('required params are not available', () => {
       test('with no arguments', async () => {
         await expect(parseArgs('server-to-s3')).rejects
-          .toThrow('Missing required arguments: host, user, key, location, bucket, key-prefix');
+          .toThrow('Missing required arguments: host, user, key, location, bucket, key-prefix-format');
       });
 
       test('with few arguments', async () => {
         await expect(parseArgs('server-to-s3 --host sftphost --location /download/from/here -b test-bucket')).rejects
-          .toThrow('Missing required arguments: user, key, key-prefix');
+          .toThrow('Missing required arguments: user, key, key-prefix-format');
+      });
+
+      describe('gpg key is required when decrypt is true in environment variable', () => {
+        beforeAll(() => {
+          process.env['SFTP_USER'] = 'test_user';
+          process.env['PRIVATE_KEY'] = 'something';
+          process.env['KEY_PREFIX_FORMAT'] = 'upload/here';
+          process.env['DECRYPT'] = 'true';
+        });
+
+        afterAll(() => {
+          delete process.env['SFTP_USER'];
+          delete process.env['PRIVATE_KEY'];
+          delete process.env['KEY_PREFIX_FORMAT'];
+          delete process.env['DECRYPT'];
+        });
+
+        test('throws error', async () => {
+          await expect(parseArgs('server-to-s3 --host sftphost --location /download/from/here -b test-bucket')).rejects
+            .toThrow('Missing dependent arguments:\n decrypt -> gpg-private-key');
+        });
+      });
+
+      describe('gpg key is required when decrypt is flagged in command options', () => {
+        test('throws error', async () => {
+          await expect(parseArgs(
+            'server-to-s3 -h sftphost -u test_user -k something --key-prefix-format upload/here -d -l /download/from/here -b test-bucket'
+          )).rejects
+            .toThrow('Missing dependent arguments:\n decrypt -> gpg-private-key');
+        });
       });
     });
 
@@ -44,16 +74,16 @@ describe('server-to-s3', () => {
           mockedHandler.serverToS3.mockResolvedValue();
           process.env['SFTP_HOST'] = 'sftphost';
           process.env['SFTP_USER'] = 'test_user';
-          process.env['KEY_PREFIX'] = 'upload/here';
+          process.env['KEY_PREFIX_FORMAT'] = '[upload/here]';
 
-          output = await parseArgs('server-to-s3 --port 22 --k secret-code --location /download/from/here -b test-bucket');
+          output = await parseArgs('server-to-s3 --port 22 --k secret-code -r --location /download/from/here -b test-bucket');
         });
 
         afterAll(() => {
           mockedHandler.serverToS3.mockClear();
           delete process.env['SFTP_HOST'];
           delete process.env['SFTP_USER'];
-          delete process.env['KEY_PREFIX'];
+          delete process.env['KEY_PREFIX_FORMAT'];
         });
 
         test('resolves successfully', () => {
@@ -70,8 +100,9 @@ describe('server-to-s3', () => {
             location: '/download/from/here',
             filename: undefined,
             bucket: 'test-bucket',
-            keyPrefix: 'upload/here',
+            keyPrefixFormat: '[upload/here]',
             decrypt: false,
+            rm: true,
           }));
         });
       });

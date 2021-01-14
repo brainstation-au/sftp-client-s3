@@ -20,8 +20,10 @@ Options:
   -b, --bucket, --bucket-name          S3 bucket name        [string] [required]
       --s3-key                         S3 key for the file to upload
                                                              [string] [required]
-  -e, --encrypt                        Encrypt file content with PGP public key
-                                                      [boolean] [default: false]"
+  -e, --encrypt                        Encrypt file content with GPG public key
+                                                      [boolean] [default: false]
+      --gpg-public-key                 GPG public key to encrypt file content
+                                                                        [string]"
 `;
 
 exports[`s3-to-server help basic help output on parent 1`] = `

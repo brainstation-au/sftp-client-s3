@@ -6,24 +6,34 @@ exports[`server-to-s3 help basic help output on command 1`] = `
 Download files from SFTP server and put them in S3 bucket
 
 Options:
-      --version                        Show version number             [boolean]
-      --help                           Show help                       [boolean]
-  -h, --host, --sftp-host              SFTP host IP address or URL
+      --version                             Show version number        [boolean]
+      --help                                Show help                  [boolean]
+  -h, --host, --sftp-host                   SFTP host IP address or URL
                                                              [string] [required]
-  -p, --port, --sftp-port              SFTP host port number
+  -p, --port, --sftp-port                   SFTP host port number
                                                           [number] [default: 22]
-  -u, --user, --sftp-user, --username  SFTP username         [string] [required]
-  -k, --key, --private-key             Private key to authenticate SFTP session
+  -u, --user, --sftp-user, --username       SFTP username    [string] [required]
+  -k, --key, --private-key                  Private key to authenticate SFTP
+                                            session          [string] [required]
+  -l, --location, --remote-location         Path to the file location in SFTP
+                                            server           [string] [required]
+  -r, --remove, --rm, --delete              Delete remote files after
+                                            successfull upload to S3
+                                                      [boolean] [default: false]
+  -f, --filename, --filename-pattern        Name of the file or a regular
+                                            expression to find a subset [string]
+  -b, --bucket, --bucket-name               S3 bucket name   [string] [required]
+      --key-prefix-format,                  A [moment format](https://momentjs.c
+      --s3-key-prefix-format                om/docs/#/displaying/format/) of S3
+                                            key prefix to upload the file
                                                              [string] [required]
-  -l, --location, --remote-location    Path to the file location in SFTP server
-                                                             [string] [required]
-  -f, --filename, --filename-pattern   Name of the file or a regular expression
-                                       to find a subset                 [string]
-  -b, --bucket, --bucket-name          S3 bucket name        [string] [required]
-      --key-prefix, --s3-key-prefix    S3 key prefix to upload the file
-                                                             [string] [required]
-  -d, --decrypt                        Decrypt file content with PGP private key
-                                                      [boolean] [default: false]"
+  -d, --decrypt                             Decrypt file content with GPG
+                                            private key
+                                                      [boolean] [default: false]
+      --gpg-private-key                     GPG private key to decrypt file
+                                            content                     [string]
+      --gpg-passphrase, --gpg-password      Passphrase to decrypt GPG private
+                                            key                         [string]"
 `;
 
 exports[`server-to-s3 help basic help output on parent 1`] = `
