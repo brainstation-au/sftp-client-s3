@@ -40,6 +40,7 @@ services:
     volumes:
       - ./client:/opt/code
       - ./.ssh:/root/.ssh
+      - ./.gnupg:/root/.gnupg
       - ./host:/tmp/host
     environment:
       - SFTP_HOST_NAME=sftphost

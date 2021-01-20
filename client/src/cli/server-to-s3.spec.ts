@@ -1,8 +1,11 @@
 import yargs, { Arguments } from 'yargs';
 import * as serverToS3 from './server-to-s3';
 import * as handler from '../services/server-to-s3';
+import * as s3Content from '../services/get-s3-object-content';
 jest.mock('../services/server-to-s3');
+jest.mock('../services/get-s3-object-content');
 const mockedHandler = handler as jest.Mocked<typeof handler>;
+const mockedS3Content = s3Content as jest.Mocked<typeof s3Content>;
 
 describe('server-to-s3', () => {
   const parser = yargs.command(serverToS3).help();
@@ -27,32 +30,32 @@ describe('server-to-s3', () => {
     describe('required params are not available', () => {
       test('with no arguments', async () => {
         await expect(parseArgs('server-to-s3')).rejects
-          .toThrow('Missing required arguments: host, user, key, location, bucket, key-prefix-format');
+          .toThrow('Missing required arguments: host, user, private-key-s3-uri, location, bucket, key-prefix-format');
       });
 
       test('with few arguments', async () => {
         await expect(parseArgs('server-to-s3 --host sftphost --location /download/from/here -b test-bucket')).rejects
-          .toThrow('Missing required arguments: user, key, key-prefix-format');
+          .toThrow('Missing required arguments: user, private-key-s3-uri, key-prefix-format');
       });
 
       describe('gpg key is required when decrypt is true in environment variable', () => {
         beforeAll(() => {
           process.env['SFTP_USER'] = 'test_user';
-          process.env['PRIVATE_KEY'] = 'something';
+          process.env['PRIVATE_KEY_S3_URI'] = 's3-uri';
           process.env['KEY_PREFIX_FORMAT'] = 'upload/here';
           process.env['DECRYPT'] = 'true';
         });
 
         afterAll(() => {
           delete process.env['SFTP_USER'];
-          delete process.env['PRIVATE_KEY'];
+          delete process.env['PRIVATE_KEY_S3_URI'];
           delete process.env['KEY_PREFIX_FORMAT'];
           delete process.env['DECRYPT'];
         });
 
         test('throws error', async () => {
           await expect(parseArgs('server-to-s3 --host sftphost --location /download/from/here -b test-bucket')).rejects
-            .toThrow('Missing dependent arguments:\n decrypt -> gpg-private-key');
+            .toThrow('Missing dependent arguments:\n decrypt -> gpg-private-key-s3-uri');
         });
       });
 
@@ -61,7 +64,7 @@ describe('server-to-s3', () => {
           await expect(parseArgs(
             'server-to-s3 -h sftphost -u test_user -k something --key-prefix-format upload/here -d -l /download/from/here -b test-bucket'
           )).rejects
-            .toThrow('Missing dependent arguments:\n decrypt -> gpg-private-key');
+            .toThrow('Missing dependent arguments:\n decrypt -> gpg-private-key-s3-uri');
         });
       });
     });
@@ -72,18 +75,22 @@ describe('server-to-s3', () => {
 
         beforeAll(async () => {
           mockedHandler.serverToS3.mockResolvedValue();
+          mockedS3Content.getS3ObjectContent.mockResolvedValue('secret-code');
           process.env['SFTP_HOST'] = 'sftphost';
           process.env['SFTP_USER'] = 'test_user';
           process.env['KEY_PREFIX_FORMAT'] = '[upload/here]';
+          process.env['GPG_PRIVATE_KEY_S3_KEY'] = 'gpg-key-s3-uri';
 
-          output = await parseArgs('server-to-s3 --port 22 --k secret-code -r --location /download/from/here -b test-bucket');
+          output = await parseArgs('server-to-s3 --port 22 --private-key-s3-uri s3-uri -r --location /download/from/here -b test-bucket');
         });
 
         afterAll(() => {
-          mockedHandler.serverToS3.mockClear();
+          mockedHandler.serverToS3.mockReset();
+          mockedS3Content.getS3ObjectContent.mockReset();
           delete process.env['SFTP_HOST'];
           delete process.env['SFTP_USER'];
           delete process.env['KEY_PREFIX_FORMAT'];
+          delete process.env['GPG_PRIVATE_KEY_S3_KEY'];
         });
 
         test('resolves successfully', () => {
@@ -96,13 +103,14 @@ describe('server-to-s3', () => {
             host: 'sftphost',
             port: 22,
             user: 'test_user',
-            key: 'secret-code',
+            privateKey: 'secret-code',
             location: '/download/from/here',
             filename: undefined,
             bucket: 'test-bucket',
             keyPrefixFormat: '[upload/here]',
             decrypt: false,
             rm: true,
+            gpgPrivateKey: 'secret-code',
           }));
         });
       });

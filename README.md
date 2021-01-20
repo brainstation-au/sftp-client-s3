@@ -34,8 +34,9 @@ Options:
   -p, --port, --sftp-port                   SFTP host port number
                                                           [number] [default: 22]
   -u, --user, --sftp-user, --username       SFTP username    [string] [required]
-  -k, --key, --private-key                  Private key to authenticate SFTP
-                                            session          [string] [required]
+      --private-key-s3-uri                  S3 URI for the private key to
+                                            authenticate SFTP session
+                                                             [string] [required]
   -l, --location, --remote-location         Path to the file location in SFTP
                                             server           [string] [required]
   -r, --remove, --rm, --delete              Delete remote files after
@@ -51,8 +52,8 @@ Options:
   -d, --decrypt                             Decrypt file content with GPG
                                             private key
                                                       [boolean] [default: false]
-      --gpg-private-key                     GPG private key to decrypt file
-                                            content                     [string]
+      --gpg-private-key-s3-uri              S3 URI of the GPG private key to
+                                            decrypt file content        [string]
       --gpg-passphrase, --gpg-password      Passphrase to decrypt GPG private
                                             key                         [string]
 ```
@@ -74,7 +75,8 @@ Options:
   -p, --port, --sftp-port              SFTP host port number
                                                           [number] [default: 22]
   -u, --user, --sftp-user, --username  SFTP username         [string] [required]
-  -k, --key, --private-key             Private key to authenticate SFTP session
+      --private-key-s3-uri             S3 URI for the private key to
+                                       authenticate SFTP session
                                                              [string] [required]
   -l, --location, --remote-location    Path to the file location in SFTP server
                                                              [string] [required]
@@ -83,8 +85,8 @@ Options:
                                                              [string] [required]
   -e, --encrypt                        Encrypt file content with GPG public key
                                                       [boolean] [default: false]
-      --gpg-public-key                 GPG public key to encrypt file content
-                                                                        [string]
+      --gpg-public-key-s3-uri          S3 URI of the GPG public key to encrypt
+                                       file content                     [string]
 ```
 
 ## Environment variables
@@ -93,16 +95,16 @@ Options:
 | SFTP_HOST  | SFTP host IP address or URL  |
 | SFTP_PORT  | SFTP host port number  |
 | SFTP_USER  | SFTP username  |
-| PRIVATE_KEY  | Private key to authenticate SFTP session  |
+| PRIVATE_KEY_S3_URI  | S3 URI for the private key to authenticate SFTP session  |
 | REMOTE_LOCATION  | Path to the file location in SFTP server  |
 | FILENAME  | Name of the file or a regular expression to find a subset  |
 | BUCKET_NAME  | S3 bucket name  |
 | S3_KEY  | S3 key for the file to upload  |
 | KEY_PREFIX_FORMAT  | S3 key prefix to upload the file  |
 | ENCRYPT  | Encrypt file content with PGP public key  |
-| GPG_PUBLIC_KEY  | GPG public key to encrypt file content  |
+| GPG_PUBLIC_KEY_S3_URI  | S3 URI of the GPG public key to encrypt file content  |
 | DECRYPT  | Decrypt file content with PGP private key  |
-| GPG_PRIVATE_KEY  | GPG private key to decrypt file content  |
+| GPG_PRIVATE_KEY_S3_URI  | S3 URI of the GPG private key to decrypt file content  |
 | GPG_PASSPHRASE  | Passphrase to decrypt GPG private key  |
 
 *When a combination of the above environment variables are present, corresponding command options become optional. But if you provide value for a command option, that has higher priority over environemnt variable.*
@@ -115,7 +117,7 @@ $ docker run brainstation/sftp-client-s3 server-to-s3 \
     -h example.com \
     -p 22 \
     -u test_user \
-    -k $(cat ~/.ssh/id_rsa) \
+    --private-key-s3-uir s3://bucket-name/foo/bar/id_rsa \
     -l /outbox \
     -b my-bucket \
     --key-prefix [my-project/section-1/year=]YYYY/[month=]MM/[day=]DD/
@@ -129,7 +131,7 @@ $ docker run brainstation/sftp-client-s3 s3-to-server \
     -h example.com \
     -p 22 \
     -u test_user \
-    -k $(cat ~/.ssh/id_rsa) \
+    --private-key-s3-uir s3://bucket-name/foo/bar/id_rsa \
     -l /inbox \
     -b my-bucket \
     -s3-key my-project/file-to-upload.txt

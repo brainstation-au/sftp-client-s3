@@ -1,4 +1,5 @@
 import { Arguments, Argv } from 'yargs';
+import { getS3ObjectContent } from '../services/get-s3-object-content';
 import { s3ToServer } from '../services/s3-to-server';
 import { S3ToServerOptions } from '../types/s3-to-server-options';
 
@@ -32,11 +33,10 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
     requiresArg: true,
     type: 'string',
   })
-  .option('key', {
-    alias: ['private-key', 'k'],
-    default: process.env['PRIVATE_KEY'],
-    demandOption: !('PRIVATE_KEY' in process.env),
-    description: 'Private key to authenticate SFTP session',
+  .option('private-key-s3-uri', {
+    default: process.env['PRIVATE_KEY_S3_URI'],
+    demandOption: !('PRIVATE_KEY_S3_URI' in process.env),
+    description: 'S3 URI for the private key to authenticate SFTP session',
     nargs: 1,
     requiresArg: true,
     type: 'string',
@@ -72,16 +72,22 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
     default: process.env['ENCRYPT'] === 'true' || false,
     description: 'Encrypt file content with GPG public key',
     type: 'boolean',
-    implies: ['gpg-public-key'],
+    implies: ['gpg-public-key-s3-uri'],
   })
-  .option('gpg-public-key', {
-    default: process.env['GPG_PUBLIC_KEY'],
-    description: 'GPG public key to encrypt file content',
+  .option('gpg-public-key-s3-uri', {
+    default: process.env['GPG_PUBLIC_KEY_S3_URI'],
+    description: 'S3 URI of the GPG public key to encrypt file content',
     nargs: 1,
     type: 'string',
   });
 
-export const handler = (argv: Arguments): Promise<string> => {
-  const options = S3ToServerOptions.check(argv);
+export const handler = async (argv: Arguments): Promise<string> => {
+  const { privateKeyS3Uri, gpgPublicKeyS3Uri } = argv;
+  const options = S3ToServerOptions.check({
+    ...argv,
+    privateKey: privateKeyS3Uri && await getS3ObjectContent(privateKeyS3Uri as string),
+    gpgPublicKey: gpgPublicKeyS3Uri && await getS3ObjectContent(gpgPublicKeyS3Uri as string),
+  });
+
   return s3ToServer(options);
 };

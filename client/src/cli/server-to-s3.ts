@@ -1,4 +1,5 @@
 import { Arguments, Argv } from 'yargs';
+import { getS3ObjectContent } from '../services/get-s3-object-content';
 import { serverToS3 } from '../services/server-to-s3';
 import { ServerToS3Options } from '../types/server-to-s3-options';
 
@@ -32,11 +33,10 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
     requiresArg: true,
     type: 'string',
   })
-  .option('key', {
-    alias: ['private-key', 'k'],
-    default: process.env['PRIVATE_KEY'],
-    demandOption: !('PRIVATE_KEY' in process.env),
-    description: 'Private key to authenticate SFTP session',
+  .option('private-key-s3-uri', {
+    default: process.env['PRIVATE_KEY_S3_URI'],
+    demandOption: !('PRIVATE_KEY_S3_URI' in process.env),
+    description: 'S3 URI for the private key to authenticate SFTP session',
     nargs: 1,
     requiresArg: true,
     type: 'string',
@@ -86,11 +86,11 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
     default: process.env['DECRYPT'] === 'true' || false,
     description: 'Decrypt file content with GPG private key',
     type: 'boolean',
-    implies: ['gpg-private-key'],
+    implies: ['gpg-private-key-s3-uri'],
   })
-  .option('gpg-private-key', {
-    default: process.env['GPG_PRIVATE_KEY'],
-    description: 'GPG private key to decrypt file content',
+  .option('gpg-private-key-s3-uri', {
+    default: process.env['GPG_PRIVATE_KEY_S3_KEY'],
+    description: 'S3 URI of the GPG private key to decrypt file content',
     nargs: 1,
     type: 'string',
   })
@@ -103,6 +103,12 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
   });
 
 export const handler = async (argv: Arguments): Promise<void> => {
-  const options = ServerToS3Options.check(argv);
+  const { privateKeyS3Uri, gpgPrivateKeyS3Uri } = argv;
+  const options = ServerToS3Options.check({
+    ...argv,
+    privateKey: privateKeyS3Uri && await getS3ObjectContent(privateKeyS3Uri as string),
+    gpgPrivateKey: gpgPrivateKeyS3Uri && await getS3ObjectContent(gpgPrivateKeyS3Uri as string),
+  });
+
   return serverToS3(options);
 };

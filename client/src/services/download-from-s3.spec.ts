@@ -20,12 +20,12 @@ describe('downloadFromS3', () => {
 
     beforeAll(async () => {
       fs.mkdirSync(path.dirname(localPath), {recursive: true});
-      getObjectPromiseFn.mockResolvedValueOnce({Body: Buffer.from(content)});
+      getObjectPromiseFn.mockReturnValueOnce({Body: Buffer.from(content)});
       await downloadFromS3(bucket, key, localPath);
     });
 
     afterAll(() => {
-      getObjectPromiseFn.mockClear();
+      getObjectPromiseFn.mockReset();
       fs.unlinkSync(localPath);
     });
 
@@ -52,11 +52,11 @@ describe('downloadFromS3', () => {
 
     beforeAll(() => {
       fs.mkdirSync(path.dirname(localPath), {recursive: true});
-      getObjectPromiseFn.mockResolvedValueOnce({});
+      getObjectPromiseFn.mockReturnValueOnce({});
     });
 
     afterAll(() => {
-      getObjectPromiseFn.mockClear();
+      getObjectPromiseFn.mockReset();
       fs.unlinkSync(localPath);
     });
 
