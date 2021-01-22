@@ -20,7 +20,7 @@ describe('getS3ObjectContent', () => {
       bucket: 'bucket-name',
       key: 's3-key-of-the-file',
     });
-    getObjectPromiseFn.mockReturnValue({Body: Buffer.from(content)});
+    getObjectPromiseFn.mockResolvedValueOnce({Body: Buffer.from(content)});
   });
 
   afterAll(() => {

@@ -20,7 +20,7 @@ describe('downloadFromS3', () => {
 
     beforeAll(async () => {
       fs.mkdirSync(path.dirname(localPath), {recursive: true});
-      getObjectPromiseFn.mockReturnValueOnce({Body: Buffer.from(content)});
+      getObjectPromiseFn.mockResolvedValueOnce({Body: Buffer.from(content)});
       await downloadFromS3(bucket, key, localPath);
     });
 
@@ -52,7 +52,7 @@ describe('downloadFromS3', () => {
 
     beforeAll(() => {
       fs.mkdirSync(path.dirname(localPath), {recursive: true});
-      getObjectPromiseFn.mockReturnValueOnce({});
+      getObjectPromiseFn.mockResolvedValueOnce({});
     });
 
     afterAll(() => {
