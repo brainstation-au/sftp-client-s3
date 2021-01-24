@@ -257,4 +257,56 @@ describe('serverToS3', () => {
       expect(mockedPgp.decrypt).not.toHaveBeenCalled();
     });
   });
+
+  describe('gunzip is true, rm is false, files are uncompressed, decrypt is false', () => {
+    const options = {
+      bucket: 'my-bucket',
+      keyPrefixPattern: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
+      decrypt: false,
+      timezone: 'UTC',
+      rm: false,
+      gunzip: true,
+    };
+    const keyPrefix = `my-project/foo/year=${year}/month=${month}/day=${day}/`;
+    const compressedContent = 'compressed-content';
+    const uncompressedContent = 'uncompressed-content';
+
+    beforeAll(async () => {
+      mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
+      mockedDownload.downloadFromSftpServer.mockResolvedValueOnce(['foo.txt.gz', 'bar.txt']);
+      mockedFs.readFileSync.mockReturnValueOnce(Buffer.from(compressedContent));
+      mockedZlib.gunzipSync.mockReturnValueOnce(Buffer.from(uncompressedContent));
+      await serverToS3(options as ServerToS3Options);
+    });
+
+    afterAll(() => {
+      resetAll();
+    });
+
+    test('compressed file was read once', () => {
+      expect(mockedFs.readFileSync).toHaveBeenCalledTimes(1);
+      expect(mockedFs.readFileSync).toHaveBeenCalledWith(path.join(localDir, 'foo.txt.gz'));
+    });
+
+    test('file content was uncompressed', () => {
+      expect(mockedZlib.gunzipSync).toHaveBeenCalledTimes(1);
+      expect(mockedZlib.gunzipSync).toHaveBeenCalledWith(Buffer.from(compressedContent));
+    });
+
+    test('uncompressed content was written in a new file', () => {
+      expect(mockedFs.writeFileSync).toHaveBeenCalledTimes(1);
+      expect(mockedFs.writeFileSync).toHaveBeenCalledWith(path.join(localDir, 'foo.txt'), Buffer.from(uncompressedContent));
+    });
+
+    test('uncompressed file was uploaded', () => {
+      expect(mockedUpload.uploadToS3).toHaveBeenCalledTimes(2);
+      expect(mockedUpload.uploadToS3).toHaveBeenCalledWith(path.join(localDir, 'foo.txt'), options.bucket, keyPrefix + 'foo.txt');
+      expect(mockedUpload.uploadToS3).toHaveBeenCalledWith(path.join(localDir, 'bar.txt'), options.bucket, keyPrefix + 'bar.txt');
+    });
+
+    test('did not call unexpected functions', () => {
+      expect(mockedZlib.gzipSync).not.toHaveBeenCalled();
+      expect(mockedPgp.decrypt).not.toHaveBeenCalled();
+    });
+  });
 });

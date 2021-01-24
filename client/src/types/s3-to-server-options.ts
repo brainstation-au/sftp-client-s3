@@ -14,7 +14,7 @@ export const S3ToServerOptions = Record({
   })))
   .And(ServerParams)
   .And(Partial({
-    gzip: Literal(true),
+    gzip: Boolean,
   }));
 
 export type S3ToServerOptions = Static<typeof S3ToServerOptions>;

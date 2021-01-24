@@ -34,6 +34,8 @@ Options:
   -d, --decrypt                             Decrypt file content with GPG
                                             private key
                                                       [boolean] [default: false]
+      --gunzip, --uncompress                Uncompress file content if
+                                            compressed[boolean] [default: false]
       --gpg-private-key-s3-uri              S3 URI of the GPG private key to
                                             decrypt file content        [string]
       --gpg-passphrase, --gpg-password      Passphrase to decrypt GPG private

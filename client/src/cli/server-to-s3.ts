@@ -95,6 +95,12 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
     type: 'boolean',
     implies: ['gpg-private-key-s3-uri'],
   })
+  .option('gunzip', {
+    alias: ['uncompress'],
+    default: process.env['UNCOMPRESS'] === 'true' || false,
+    description: 'Uncompress file content if compressed',
+    type: 'boolean',
+  })
   .option('gpg-private-key-s3-uri', {
     default: process.env['GPG_PRIVATE_KEY_S3_KEY'],
     description: 'S3 URI of the GPG private key to decrypt file content',

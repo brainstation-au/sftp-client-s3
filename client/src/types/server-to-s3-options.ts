@@ -9,6 +9,7 @@ export const ServerToS3Options = Record({
 })
   .And(Partial({
     rm: Boolean,
+    gunzip: Boolean,
   }))
   .And(Record({
     decrypt: Literal(false),

@@ -55,6 +55,8 @@ Options:
   -d, --decrypt                             Decrypt file content with GPG
                                             private key
                                                       [boolean] [default: false]
+      --gunzip, --uncompress                Uncompress file content if
+                                            compressed[boolean] [default: false]
       --gpg-private-key-s3-uri              S3 URI of the GPG private key to
                                             decrypt file content        [string]
       --gpg-passphrase, --gpg-password      Passphrase to decrypt GPG private
@@ -108,6 +110,7 @@ Options:
 | KEY_PREFIX_PATTERN  | A string to pass through [moment format](https://momentjs.com/docs/#/displaying/format/) to get S3 key prefix  |
 | TIMEZONE  | Name of the timezone to translate key-prefix-pattern  |
 | COMPRESS  | Compress file content if not already compressed  |
+| UNCOMPRESS  | Uncompress file content if compressed  |
 | ENCRYPT  | Encrypt file content with PGP public key  |
 | GPG_PUBLIC_KEY_S3_URI  | S3 URI of the GPG public key to encrypt file content  |
 | DECRYPT  | Decrypt file content with PGP private key  |
@@ -124,10 +127,10 @@ $ docker run brainstation/sftp-client-s3 server-to-s3 \
     -h example.com \
     -p 22 \
     -u test_user \
-    --private-key-s3-uir s3://bucket-name/foo/bar/id_rsa \
+    --private-key-s3-uri s3://bucket-name/foo/bar/id_rsa \
     -l /outbox \
     -b my-bucket \
-    --key-prefix [my-project/section-1/year=]YYYY/[month=]MM/[day=]DD/
+    --key-prefix-pattern [my-project/section-1/year=]YYYY/[month=]MM/[day=]DD/
 ```
 
 *Suppose you ran the above command on 2021-01-01 UTC, the actual --key-prefix would have been `my-project/section-1/year=2021/month=01/day=01/`*
@@ -138,7 +141,7 @@ $ docker run brainstation/sftp-client-s3 s3-to-server \
     -h example.com \
     -p 22 \
     -u test_user \
-    --private-key-s3-uir s3://bucket-name/foo/bar/id_rsa \
+    --private-key-s3-uri s3://bucket-name/foo/bar/id_rsa \
     -l /inbox \
     -b my-bucket \
     -s3-key my-project/file-to-upload.txt

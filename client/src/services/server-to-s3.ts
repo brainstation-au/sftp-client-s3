@@ -26,7 +26,13 @@ export const serverToS3 = async (options: ServerToS3Options): Promise<void> => {
       fs.writeFileSync(filepath, contentToWrite);
     }
 
-    await uploadToS3(filepath, options.bucket, `${keyPrefix}${filename}`);
+    let uploadName = filename;
+    if (isGzipped && options.gunzip) {
+      uploadName = path.parse(filename).name;
+      fs.writeFileSync(path.join(localDir, uploadName), zlib.gunzipSync(fs.readFileSync(filepath)));
+    }
+
+    await uploadToS3(path.join(localDir, uploadName), options.bucket, `${keyPrefix}${uploadName}`);
 
     if (options.rm) {
       await removeFromSftpServer(options, filename);
