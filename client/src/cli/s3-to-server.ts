@@ -67,6 +67,12 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
     requiresArg: true,
     type: 'string',
   })
+  .option('gzip', {
+    alias: ['compress'],
+    default: process.env['COMPRESS'] === 'true' || false,
+    description: 'Compress file content if not already compressed',
+    type: 'boolean',
+  })
   .option('encrypt', {
     alias: ['e'],
     default: process.env['ENCRYPT'] === 'true' || false,

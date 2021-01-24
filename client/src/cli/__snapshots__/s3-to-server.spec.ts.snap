@@ -21,6 +21,8 @@ Options:
   -b, --bucket, --bucket-name          S3 bucket name        [string] [required]
       --s3-key                         S3 key for the file to upload
                                                              [string] [required]
+      --gzip, --compress               Compress file content if not already
+                                       compressed     [boolean] [default: false]
   -e, --encrypt                        Encrypt file content with GPG public key
                                                       [boolean] [default: false]
       --gpg-public-key-s3-uri          S3 URI of the GPG public key to encrypt

@@ -83,7 +83,9 @@ describe('s3-to-server', () => {
           process.env['S3_KEY'] = 'upload/here/filename.txt';
           process.env['GPG_PUBLIC_KEY_S3_URI'] = 'gpg-key-s3-uri';
 
-          output = await parseArgs('s3-to-server --port 22 --private-key-s3-uri s3-uri --location /download/from/here -b test-bucket');
+          output = await parseArgs(
+            's3-to-server --port 22 --private-key-s3-uri s3-uri --location /download/from/here -b test-bucket --gzip'
+          );
         });
 
         afterAll(() => {
@@ -111,6 +113,7 @@ describe('s3-to-server', () => {
             s3Key: 'upload/here/filename.txt',
             encrypt: false,
             gpgPublicKey: 'secret-code',
+            gzip: true,
           }));
         });
       });
