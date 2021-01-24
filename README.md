@@ -45,10 +45,13 @@ Options:
   -f, --filename, --filename-pattern        Name of the file or a regular
                                             expression to find a subset [string]
   -b, --bucket, --bucket-name               S3 bucket name   [string] [required]
-      --key-prefix-format,                  A [moment format](https://momentjs.c
-      --s3-key-prefix-format                om/docs/#/displaying/format/) of S3
-                                            key prefix to upload the file
-                                                             [string] [required]
+      --key-prefix-pattern,                 A string to pass through [moment
+      --s3-key-prefix-pattern               format](https://momentjs.com/docs/#/
+                                            displaying/format/) to get S3 key
+                                            prefix           [string] [required]
+      --timezone                            Name of the timezone to translate
+                                            key-prefix-pattern
+                                                       [string] [default: \\"UTC\\"]
   -d, --decrypt                             Decrypt file content with GPG
                                             private key
                                                       [boolean] [default: false]
@@ -83,6 +86,8 @@ Options:
   -b, --bucket, --bucket-name          S3 bucket name        [string] [required]
       --s3-key                         S3 key for the file to upload
                                                              [string] [required]
+      --gzip, --compress               Compress file content if not already
+                                       compressed     [boolean] [default: false]
   -e, --encrypt                        Encrypt file content with GPG public key
                                                       [boolean] [default: false]
       --gpg-public-key-s3-uri          S3 URI of the GPG public key to encrypt
@@ -100,7 +105,9 @@ Options:
 | FILENAME  | Name of the file or a regular expression to find a subset  |
 | BUCKET_NAME  | S3 bucket name  |
 | S3_KEY  | S3 key for the file to upload  |
-| KEY_PREFIX_FORMAT  | S3 key prefix to upload the file  |
+| KEY_PREFIX_PATTERN  | A string to pass through [moment format](https://momentjs.com/docs/#/displaying/format/) to get S3 key prefix  |
+| TIMEZONE  | Name of the timezone to translate key-prefix-pattern  |
+| COMPRESS  | Compress file content if not already compressed  |
 | ENCRYPT  | Encrypt file content with PGP public key  |
 | GPG_PUBLIC_KEY_S3_URI  | S3 URI of the GPG public key to encrypt file content  |
 | DECRYPT  | Decrypt file content with PGP private key  |

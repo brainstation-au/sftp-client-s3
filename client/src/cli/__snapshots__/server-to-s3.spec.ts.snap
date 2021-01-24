@@ -24,10 +24,13 @@ Options:
   -f, --filename, --filename-pattern        Name of the file or a regular
                                             expression to find a subset [string]
   -b, --bucket, --bucket-name               S3 bucket name   [string] [required]
-      --key-prefix-format,                  A [moment format](https://momentjs.c
-      --s3-key-prefix-format                om/docs/#/displaying/format/) of S3
-                                            key prefix to upload the file
-                                                             [string] [required]
+      --key-prefix-pattern,                 A string to pass through [moment
+      --s3-key-prefix-pattern               format](https://momentjs.com/docs/#/
+                                            displaying/format/) to get S3 key
+                                            prefix           [string] [required]
+      --timezone                            Name of the timezone to translate
+                                            key-prefix-pattern
+                                                       [string] [default: \\"UTC\\"]
   -d, --decrypt                             Decrypt file content with GPG
                                             private key
                                                       [boolean] [default: false]

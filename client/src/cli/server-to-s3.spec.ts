@@ -30,26 +30,26 @@ describe('server-to-s3', () => {
     describe('required params are not available', () => {
       test('with no arguments', async () => {
         await expect(parseArgs('server-to-s3')).rejects
-          .toThrow('Missing required arguments: host, user, private-key-s3-uri, location, bucket, key-prefix-format');
+          .toThrow('Missing required arguments: host, user, private-key-s3-uri, location, bucket, key-prefix-pattern');
       });
 
       test('with few arguments', async () => {
         await expect(parseArgs('server-to-s3 --host sftphost --location /download/from/here -b test-bucket')).rejects
-          .toThrow('Missing required arguments: user, private-key-s3-uri, key-prefix-format');
+          .toThrow('Missing required arguments: user, private-key-s3-uri, key-prefix-pattern');
       });
 
       describe('gpg key is required when decrypt is true in environment variable', () => {
         beforeAll(() => {
           process.env['SFTP_USER'] = 'test_user';
           process.env['PRIVATE_KEY_S3_URI'] = 's3-uri';
-          process.env['KEY_PREFIX_FORMAT'] = 'upload/here';
+          process.env['KEY_PREFIX_PATTERN'] = 'upload/here';
           process.env['DECRYPT'] = 'true';
         });
 
         afterAll(() => {
           delete process.env['SFTP_USER'];
           delete process.env['PRIVATE_KEY_S3_URI'];
-          delete process.env['KEY_PREFIX_FORMAT'];
+          delete process.env['KEY_PREFIX_PATTERN'];
           delete process.env['DECRYPT'];
         });
 
@@ -62,7 +62,7 @@ describe('server-to-s3', () => {
       describe('gpg key is required when decrypt is flagged in command options', () => {
         test('throws error', async () => {
           await expect(parseArgs(
-            'server-to-s3 -h sftphost -u test_user -k something --key-prefix-format upload/here -d -l /download/from/here -b test-bucket'
+            'server-to-s3 -h sftphost -u test_user -k something --key-prefix-pattern upload/here -d -l /download/from/here -b test-bucket'
           )).rejects
             .toThrow('Missing dependent arguments:\n decrypt -> gpg-private-key-s3-uri');
         });
@@ -78,7 +78,7 @@ describe('server-to-s3', () => {
           mockedS3Content.getS3ObjectContent.mockResolvedValue('secret-code');
           process.env['SFTP_HOST'] = 'sftphost';
           process.env['SFTP_USER'] = 'test_user';
-          process.env['KEY_PREFIX_FORMAT'] = '[upload/here]';
+          process.env['KEY_PREFIX_PATTERN'] = '[upload/here]';
           process.env['GPG_PRIVATE_KEY_S3_KEY'] = 'gpg-key-s3-uri';
 
           output = await parseArgs('server-to-s3 --port 22 --private-key-s3-uri s3-uri -r --location /download/from/here -b test-bucket');
@@ -89,7 +89,7 @@ describe('server-to-s3', () => {
           mockedS3Content.getS3ObjectContent.mockReset();
           delete process.env['SFTP_HOST'];
           delete process.env['SFTP_USER'];
-          delete process.env['KEY_PREFIX_FORMAT'];
+          delete process.env['KEY_PREFIX_PATTERN'];
           delete process.env['GPG_PRIVATE_KEY_S3_KEY'];
         });
 
@@ -107,7 +107,7 @@ describe('server-to-s3', () => {
             location: '/download/from/here',
             filename: undefined,
             bucket: 'test-bucket',
-            keyPrefixFormat: '[upload/here]',
+            keyPrefixPattern: '[upload/here]',
             decrypt: false,
             rm: true,
             gpgPrivateKey: 'secret-code',
