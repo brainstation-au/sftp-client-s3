@@ -1,13 +1,14 @@
-import { Arguments, Argv } from 'yargs';
+import { Arguments, Argv, MiddlewareFunction } from 'yargs';
 import { getS3ObjectContent } from '../services/get-s3-object-content';
 import { s3ToServer } from '../services/s3-to-server';
 import { S3ToServerOptions } from '../types/s3-to-server-options';
+import { Arguments as S3ToServerArguments } from './s3-to-server-arguments';
 
 export const command = 's3-to-server';
 
 export const description = 'Get a file from S3 and upload that on the SFTP server';
 
-export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
+export const builder = (yargs: Argv<unknown>): Argv<Partial<S3ToServerArguments>> => yargs
   .option('host', {
     alias: ['sftp-host', 'h'],
     default: process.env['SFTP_HOST'],
@@ -19,7 +20,7 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
   })
   .option('port', {
     alias: ['sftp-port', 'p'],
-    default: process.env['SFTP_PORT'] || 22,
+    default: +(process.env['SFTP_PORT'] || 22),
     description: 'SFTP host port number',
     nargs: 1,
     type: 'number',
@@ -87,7 +88,22 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
     type: 'string',
   });
 
-export const handler = async (argv: Arguments): Promise<string> => {
+const downloadPrivateKey: MiddlewareFunction<Partial<S3ToServerArguments>> = async (argv) => {
+  const privateKey = argv.privateKeyS3Uri && await getS3ObjectContent(argv.privateKeyS3Uri);
+  return {...argv, privateKey};
+};
+
+const downloadGpgPublicKey: MiddlewareFunction<Partial<S3ToServerArguments>> = async (argv) => {
+  const gpgPublicKey = argv.gpgPublicKeyS3Uri && await getS3ObjectContent(argv.gpgPublicKeyS3Uri);
+  return {...argv, gpgPublicKey};
+};
+
+export const middlewares = [
+  downloadPrivateKey,
+  downloadGpgPublicKey,
+];
+
+export const handler = async (argv: Arguments<Partial<S3ToServerArguments>>): Promise<string> => {
   const { privateKeyS3Uri, gpgPublicKeyS3Uri } = argv;
   const options = S3ToServerOptions.check({
     ...argv,

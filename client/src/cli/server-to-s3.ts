@@ -1,13 +1,14 @@
-import { Arguments, Argv } from 'yargs';
+import { Arguments, Argv, MiddlewareFunction } from 'yargs';
 import { getS3ObjectContent } from '../services/get-s3-object-content';
 import { serverToS3 } from '../services/server-to-s3';
 import { ServerToS3Options } from '../types/server-to-s3-options';
+import { Arguments as ServerToS3Arguments } from './server-to-s3-arguments';
 
 export const command = 'server-to-s3';
 
 export const description = 'Download files from SFTP server and put them in S3 bucket';
 
-export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
+export const builder = (yargs: Argv<unknown>): Argv<Partial<ServerToS3Arguments>> => yargs
   .option('host', {
     alias: ['sftp-host', 'h'],
     default: process.env['SFTP_HOST'],
@@ -19,7 +20,7 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
   })
   .option('port', {
     alias: ['sftp-port', 'p'],
-    default: process.env['SFTP_PORT'] || 22,
+    default: +(process.env['SFTP_PORT'] || 22),
     description: 'SFTP host port number',
     nargs: 1,
     type: 'number',
@@ -115,13 +116,22 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
     type: 'string',
   });
 
-export const handler = async (argv: Arguments): Promise<void> => {
-  const { privateKeyS3Uri, gpgPrivateKeyS3Uri } = argv;
-  const options = ServerToS3Options.check({
-    ...argv,
-    privateKey: privateKeyS3Uri && await getS3ObjectContent(privateKeyS3Uri as string),
-    gpgPrivateKey: gpgPrivateKeyS3Uri && await getS3ObjectContent(gpgPrivateKeyS3Uri as string),
-  });
+const downloadPrivateKey: MiddlewareFunction<Partial<ServerToS3Arguments>> = async (argv) => {
+  const privateKey = argv.privateKeyS3Uri && await getS3ObjectContent(argv.privateKeyS3Uri);
+  return {...argv, privateKey};
+};
 
+const downloadGpgPrivateKey: MiddlewareFunction<Partial<ServerToS3Arguments>> = async (argv) => {
+  const gpgPrivateKey = argv.gpgPrivateKeyS3Uri && await getS3ObjectContent(argv.gpgPrivateKeyS3Uri);
+  return {...argv, gpgPrivateKey};
+};
+
+export const middlewares = [
+  downloadPrivateKey,
+  downloadGpgPrivateKey,
+];
+
+export const handler = async (argv: Arguments<Partial<ServerToS3Arguments>>): Promise<void> => {
+  const options = ServerToS3Options.check(argv);
   return serverToS3(options);
 };
