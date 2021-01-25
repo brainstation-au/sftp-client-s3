@@ -107,7 +107,7 @@ describe('serverToS3', () => {
   describe('decrypt is true, files are uncompressed, rm is false', () => {
     const options = {
       gpgPrivateKey: 'gpg-private-kye',
-      passphrase: 'password',
+      gpgPassphrase: 'password',
       bucket: 'my-bucket',
       keyPrefixPattern: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
       decrypt: true,
@@ -141,8 +141,8 @@ describe('serverToS3', () => {
 
     test('file contents were decrypted', () => {
       expect(mockedPgp.decrypt).toHaveBeenCalledTimes(2);
-      expect(mockedPgp.decrypt).toHaveBeenCalledWith(fileContent1, options.gpgPrivateKey, options.passphrase);
-      expect(mockedPgp.decrypt).toHaveBeenCalledWith(fileContent2, options.gpgPrivateKey, options.passphrase);
+      expect(mockedPgp.decrypt).toHaveBeenCalledWith(fileContent1, options.gpgPrivateKey, options.gpgPassphrase);
+      expect(mockedPgp.decrypt).toHaveBeenCalledWith(fileContent2, options.gpgPrivateKey, options.gpgPassphrase);
     });
 
     test('decrypted content were writted back to files', () => {
@@ -161,7 +161,7 @@ describe('serverToS3', () => {
   describe('decrypt is true, files are compressed, rm is false', () => {
     const options = {
       gpgPrivateKey: 'gpg-private-kye',
-      passphrase: 'password',
+      gpgPassphrase: 'password',
       bucket: 'my-bucket',
       keyPrefixPattern: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
       decrypt: true,
@@ -203,8 +203,8 @@ describe('serverToS3', () => {
 
     test('file contents were decrypted', () => {
       expect(mockedPgp.decrypt).toHaveBeenCalledTimes(2);
-      expect(mockedPgp.decrypt).toHaveBeenCalledWith(unzippedContent1, options.gpgPrivateKey, options.passphrase);
-      expect(mockedPgp.decrypt).toHaveBeenCalledWith(unzippedContent2, options.gpgPrivateKey, options.passphrase);
+      expect(mockedPgp.decrypt).toHaveBeenCalledWith(unzippedContent1, options.gpgPrivateKey, options.gpgPassphrase);
+      expect(mockedPgp.decrypt).toHaveBeenCalledWith(unzippedContent2, options.gpgPrivateKey, options.gpgPassphrase);
     });
 
     test('decrypted content were compressed', () => {

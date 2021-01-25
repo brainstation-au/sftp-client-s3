@@ -1,4 +1,4 @@
-import { Boolean, Literal, Number, Partial, Record, Static, String } from 'runtypes';
+import { Boolean, Literal, Number, Partial, Record, Static, String, Undefined } from 'runtypes';
 import { ServerParams } from './server-params';
 import moment from 'moment-timezone';
 
@@ -16,7 +16,7 @@ export const ServerToS3Options = Record({
   }).Or(Record({
     decrypt: Literal(true),
     gpgPrivateKey: String,
-    passphrase: String,
+    gpgPassphrase: String.Or(Undefined),
   })))
   .And(ServerParams)
   .And(

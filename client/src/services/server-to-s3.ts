@@ -21,7 +21,7 @@ export const serverToS3 = async (options: ServerToS3Options): Promise<void> => {
     if (options.decrypt) {
       const fileContent = fs.readFileSync(filepath);
       const encryptedContent: Buffer = isGzipped ? zlib.gunzipSync(fileContent) : fileContent;
-      const clearContent: string = await decrypt(encryptedContent.toString(), options.gpgPrivateKey, options.passphrase);
+      const clearContent: string = await decrypt(encryptedContent.toString(), options.gpgPrivateKey, options.gpgPassphrase);
       const contentToWrite: Buffer = isGzipped ? zlib.gzipSync(Buffer.from(clearContent)) : Buffer.from(clearContent);
       fs.writeFileSync(filepath, contentToWrite);
     }
