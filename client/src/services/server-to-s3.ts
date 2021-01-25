@@ -12,7 +12,7 @@ import { uploadToS3 } from './upload-to-s3';
 export const serverToS3 = async (options: ServerToS3Options): Promise<void> => {
   const localDir = localStorageLocation();
   const filenames = await downloadFromSftpServer(options, localDir);
-  console.log(`Files have been downloaded from ${options.host}`, JSON.stringify(filenames, null, 2));
+  console.log(`Files have been downloaded from ${options.host}`, JSON.stringify(filenames));
   const keyPrefix = moment().tz(options.timezone).format(options.keyPrefixPattern);
 
   for (const filename of filenames) {
