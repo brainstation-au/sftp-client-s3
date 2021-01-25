@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { Arguments, Argv, MiddlewareFunction } from 'yargs';
 import { getS3ObjectContent } from '../services/get-s3-object-content';
 import { s3ToServer } from '../services/s3-to-server';
@@ -104,12 +105,7 @@ export const middlewares = [
 ];
 
 export const handler = async (argv: Arguments<Partial<S3ToServerArguments>>): Promise<string> => {
-  const { privateKeyS3Uri, gpgPublicKeyS3Uri } = argv;
-  const options = S3ToServerOptions.check({
-    ...argv,
-    privateKey: privateKeyS3Uri && await getS3ObjectContent(privateKeyS3Uri as string),
-    gpgPublicKey: gpgPublicKeyS3Uri && await getS3ObjectContent(gpgPublicKeyS3Uri as string),
-  });
-
+  console.log(`Options submitted with ${path.parse(__filename).name}:`, JSON.stringify(argv, null, 2));
+  const options = S3ToServerOptions.check(argv);
   return s3ToServer(options);
 };

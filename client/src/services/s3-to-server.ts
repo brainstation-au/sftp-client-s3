@@ -15,6 +15,7 @@ export const s3ToServer = async (options: S3ToServerOptions): Promise<string> =>
   const localPath = path.join(localDir, filename);
 
   await downloadFromS3(bucket, s3Key, localPath);
+  console.log(`s3://${bucket}/${s3Key} has been downloaded as ${localPath}`);
 
   if (options.encrypt) {
     const fileContent: Buffer = fs.readFileSync(localPath);

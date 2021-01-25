@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { Arguments, Argv, MiddlewareFunction } from 'yargs';
 import { getS3ObjectContent } from '../services/get-s3-object-content';
 import { serverToS3 } from '../services/server-to-s3';
@@ -132,6 +133,7 @@ export const middlewares = [
 ];
 
 export const handler = async (argv: Arguments<Partial<ServerToS3Arguments>>): Promise<void> => {
+  console.log(`Options submitted with ${path.parse(__filename).name}:`, JSON.stringify(argv, null, 2));
   const options = ServerToS3Options.check(argv);
   return serverToS3(options);
 };

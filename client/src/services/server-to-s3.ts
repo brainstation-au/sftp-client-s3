@@ -12,6 +12,7 @@ import { uploadToS3 } from './upload-to-s3';
 export const serverToS3 = async (options: ServerToS3Options): Promise<void> => {
   const localDir = localStorageLocation();
   const filenames = await downloadFromSftpServer(options, localDir);
+  console.log(`Files have been downloaded from ${options.host}`, JSON.stringify(filenames, null, 2));
   const keyPrefix = moment().tz(options.timezone).format(options.keyPrefixPattern);
 
   for (const filename of filenames) {
@@ -33,9 +34,11 @@ export const serverToS3 = async (options: ServerToS3Options): Promise<void> => {
     }
 
     await uploadToS3(path.join(localDir, uploadName), options.bucket, `${keyPrefix}${uploadName}`);
+    console.log(`s3://${options.bucket}/${keyPrefix}${uploadName} has been uploaded.`);
 
     if (options.rm) {
       await removeFromSftpServer(options, filename);
+      console.log(`${filename} has been deleted from the server.`);
     }
   }
 };
