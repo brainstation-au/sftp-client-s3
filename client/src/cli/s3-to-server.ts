@@ -105,7 +105,6 @@ export const middlewares = [
 ];
 
 export const handler = async (argv: Arguments<Partial<S3ToServerArguments>>): Promise<string> => {
-  console.log(`Options submitted with ${path.parse(__filename).name}:`, JSON.stringify(argv));
   const options = S3ToServerOptions.check(argv);
   return s3ToServer(options);
 };
