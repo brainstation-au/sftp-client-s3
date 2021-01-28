@@ -1,23 +1,45 @@
 import * as fs from 'fs';
 import * as zlib from 'zlib';
-import { gzip } from './gzip';
+import { compress, uncompress } from './gzip';
 
 describe('gzip', () => {
-  const uncompressedFilepath = '/tmp/file.txt';
-  const compressedFilepath = '/tmp/file.txt.gz';
-  const content = 'Hello World!\n';
+  describe('compress', () => {
+    const uncompressedFilepath = '/tmp/file.txt';
+    const compressedFilepath = '/tmp/file.txt.gz';
+    const content = 'Hello World!\n';
 
-  beforeAll(async () => {
-    fs.writeFileSync(uncompressedFilepath, content, {encoding: 'utf-8'});
-    await gzip(uncompressedFilepath, compressedFilepath);
+    beforeAll(async () => {
+      fs.writeFileSync(uncompressedFilepath, content, {encoding: 'utf-8'});
+      await compress(uncompressedFilepath, compressedFilepath);
+    });
+
+    afterAll(() => {
+      fs.rmdirSync(uncompressedFilepath);
+      fs.rmdirSync(compressedFilepath);
+    });
+
+    test('zipped content matches', async () => {
+      expect(zlib.gunzipSync(fs.readFileSync(compressedFilepath)).toString()).toEqual(content);
+    });
   });
 
-  afterAll(() => {
-    fs.rmdirSync(uncompressedFilepath);
-    fs.rmdirSync(compressedFilepath);
-  });
+  describe('uncompress', () => {
+    const uncompressedFilepath = '/tmp/file.txt';
+    const compressedFilepath = '/tmp/file.txt.gz';
+    const content = 'Hello World!\n';
 
-  test('zipped content matches', async () => {
-    expect(zlib.gunzipSync(fs.readFileSync(compressedFilepath)).toString()).toEqual(content);
+    beforeAll(async () => {
+      fs.writeFileSync(compressedFilepath, zlib.gzipSync(content));
+      await uncompress(compressedFilepath, uncompressedFilepath);
+    });
+
+    afterAll(() => {
+      fs.rmdirSync(uncompressedFilepath);
+      fs.rmdirSync(compressedFilepath);
+    });
+
+    test('zipped content matches', () => {
+      expect(fs.readFileSync(uncompressedFilepath, 'utf-8')).toEqual(content);
+    });
   });
 });
