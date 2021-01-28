@@ -6,6 +6,7 @@ import { downloadFromS3 } from './download-from-s3';
 import { localStorageLocation } from './local-storage-location';
 import { encrypt } from './openpgp';
 import { uploadToSftpServer } from './upload-to-sftp-server';
+import { compress } from './gzip';
 
 export const s3ToServer = async (options: S3ToServerOptions): Promise<string> => {
   const { bucket, s3Key } = options;
@@ -28,7 +29,7 @@ export const s3ToServer = async (options: S3ToServerOptions): Promise<string> =>
   let uploadPath = localPath;
   if (!isGzipped && options.gzip) {
     uploadPath = localPath + '.gz';
-    fs.writeFileSync(uploadPath, zlib.gzipSync(fs.readFileSync(localPath)));
+    await compress(localPath, uploadPath);
   }
 
   return uploadToSftpServer(options, uploadPath);

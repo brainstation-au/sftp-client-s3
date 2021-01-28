@@ -4,6 +4,7 @@ import { S3ToServerOptions } from '../types/s3-to-server-options';
 import * as download from './download-from-s3';
 import * as storage from './local-storage-location';
 import * as openpgp from './openpgp';
+import * as gzip from './gzip';
 import { s3ToServer } from './s3-to-server';
 import * as upload from './upload-to-sftp-server';
 jest.mock('fs');
@@ -12,12 +13,14 @@ jest.mock('./upload-to-sftp-server');
 jest.mock('./download-from-s3');
 jest.mock('./local-storage-location');
 jest.mock('./openpgp');
+jest.mock('./gzip');
 const mockedFs = fs as jest.Mocked<typeof fs>;
 const mockedZlib = zlib as jest.Mocked<typeof zlib>;
 const mockedDownload = download as jest.Mocked<typeof download>;
 const mockedUpload = upload as jest.Mocked<typeof upload>;
 const mockedStorage = storage as jest.Mocked<typeof storage>;
 const mockedPgp = openpgp as jest.Mocked<typeof openpgp>;
+const mockedGzip = gzip as jest.Mocked<typeof gzip>;
 
 const resetAll = () => {
   mockedFs.readFileSync.mockReset();
@@ -219,25 +222,15 @@ describe('s3ToServer', () => {
       resetAll();
     });
 
-    test('local file was read', () => {
-      expect(mockedFs.readFileSync).toHaveBeenCalledTimes(1);
-      expect(mockedFs.readFileSync).toHaveBeenCalledWith(localPath);
-    });
-
-    test('file content was compressed', () => {
-      expect(mockedZlib.gzipSync).toHaveBeenCalledTimes(1);
-      expect(mockedZlib.gzipSync).toHaveBeenCalledWith(Buffer.from(fileContent));
-    });
-
-    test('compressed file was written', () => {
-      expect(mockedFs.writeFileSync).toHaveBeenCalledTimes(1);
-      expect(mockedFs.writeFileSync).toHaveBeenCalledWith(
-        localPath + '.gz',
-        Buffer.from(compressedContent),
-      );
+    test('compress was called with filepaths', () => {
+      expect(mockedGzip.compress).toHaveBeenCalledTimes(1);
+      expect(mockedGzip.compress).toHaveBeenCalledWith(localPath, localPath + '.gz');
     });
 
     test('no other function were called', () => {
+      expect(mockedFs.readFileSync).not.toHaveBeenCalled();
+      expect(mockedFs.writeFileSync).not.toHaveBeenCalled();
+      expect(mockedZlib.gzipSync).not.toHaveBeenCalled();
       expect(mockedZlib.gunzipSync).not.toHaveBeenCalled();
       expect(mockedPgp.encrypt).not.toHaveBeenCalled();
     });
