@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as zlib from 'zlib';
 import { ServerToS3Options } from '../types/server-to-s3-options';
 import { downloadFromSftpServer } from './download-from-sftp-server';
+import { uncompress } from './gzip';
 import { localStorageLocation } from './local-storage-location';
 import { decrypt } from './openpgp';
 import { removeFromSftpServer } from './remove-from-sftp-server';
@@ -30,7 +31,7 @@ export const serverToS3 = async (options: ServerToS3Options): Promise<void> => {
     let uploadName = filename;
     if (isGzipped && options.gunzip) {
       uploadName = path.parse(filename).name;
-      fs.writeFileSync(path.join(localDir, uploadName), zlib.gunzipSync(fs.readFileSync(filepath)));
+      await uncompress(path.join(localDir, filename), path.join(localDir, uploadName));
     }
 
     await uploadToS3(path.join(localDir, uploadName), options.bucket, `${keyPrefix}${uploadName}`);

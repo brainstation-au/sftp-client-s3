@@ -9,6 +9,7 @@ import * as openpgp from './openpgp';
 import * as remove from './remove-from-sftp-server';
 import { serverToS3 } from './server-to-s3';
 import * as upload from './upload-to-s3';
+import * as gzip from './gzip';
 jest.mock('fs');
 jest.mock('zlib');
 jest.mock('./download-from-sftp-server');
@@ -16,6 +17,7 @@ jest.mock('./local-storage-location');
 jest.mock('./remove-from-sftp-server');
 jest.mock('./upload-to-s3');
 jest.mock('./openpgp');
+jest.mock('./gzip');
 const mockedFs = fs as jest.Mocked<typeof fs>;
 const mockedZlib = zlib as jest.Mocked<typeof zlib>;
 const mockedDownload = download as jest.Mocked<typeof download>;
@@ -23,6 +25,7 @@ const mockedRemove = remove as jest.Mocked<typeof remove>;
 const mockedUpload = upload as jest.Mocked<typeof upload>;
 const mockedPgp = openpgp as jest.Mocked<typeof openpgp>;
 const mockedStorage = storage as jest.Mocked<typeof storage>;
+const mockedGzip = gzip as jest.Mocked<typeof gzip>;
 
 const resetAll = () => {
   mockedFs.readFileSync.mockReset();
@@ -34,6 +37,7 @@ const resetAll = () => {
   mockedUpload.uploadToS3.mockReset();
   mockedPgp.decrypt.mockReset();
   mockedStorage.localStorageLocation.mockReset();
+  mockedGzip.uncompress.mockReset();
 };
 
 describe('serverToS3', () => {
@@ -100,6 +104,7 @@ describe('serverToS3', () => {
         expect(mockedZlib.gunzipSync).not.toHaveBeenCalled();
         expect(mockedRemove.removeFromSftpServer).not.toHaveBeenCalled();
         expect(mockedPgp.decrypt).not.toHaveBeenCalled();
+        expect(mockedGzip.uncompress).not.toHaveBeenCalled();
       });
     });
   });
@@ -155,6 +160,7 @@ describe('serverToS3', () => {
       expect(mockedZlib.gzipSync).not.toHaveBeenCalled();
       expect(mockedZlib.gunzipSync).not.toHaveBeenCalled();
       expect(mockedRemove.removeFromSftpServer).not.toHaveBeenCalled();
+      expect(mockedGzip.uncompress).not.toHaveBeenCalled();
     });
   });
 
@@ -221,6 +227,7 @@ describe('serverToS3', () => {
 
     test('did not call unexpected functions', () => {
       expect(mockedRemove.removeFromSftpServer).not.toHaveBeenCalled();
+      expect(mockedGzip.uncompress).not.toHaveBeenCalled();
     });
   });
 
@@ -255,6 +262,7 @@ describe('serverToS3', () => {
       expect(mockedZlib.gzipSync).not.toHaveBeenCalled();
       expect(mockedZlib.gunzipSync).not.toHaveBeenCalled();
       expect(mockedPgp.decrypt).not.toHaveBeenCalled();
+      expect(mockedGzip.uncompress).not.toHaveBeenCalled();
     });
   });
 
@@ -283,19 +291,9 @@ describe('serverToS3', () => {
       resetAll();
     });
 
-    test('compressed file was read once', () => {
-      expect(mockedFs.readFileSync).toHaveBeenCalledTimes(1);
-      expect(mockedFs.readFileSync).toHaveBeenCalledWith(path.join(localDir, 'foo.txt.gz'));
-    });
-
-    test('file content was uncompressed', () => {
-      expect(mockedZlib.gunzipSync).toHaveBeenCalledTimes(1);
-      expect(mockedZlib.gunzipSync).toHaveBeenCalledWith(Buffer.from(compressedContent));
-    });
-
-    test('uncompressed content was written in a new file', () => {
-      expect(mockedFs.writeFileSync).toHaveBeenCalledTimes(1);
-      expect(mockedFs.writeFileSync).toHaveBeenCalledWith(path.join(localDir, 'foo.txt'), Buffer.from(uncompressedContent));
+    test('uncompress was called', () => {
+      expect(mockedGzip.uncompress).toHaveBeenCalledTimes(1);
+      expect(mockedGzip.uncompress).toHaveBeenCalledWith(path.join(localDir, 'foo.txt.gz'), path.join(localDir, 'foo.txt'));
     });
 
     test('uncompressed file was uploaded', () => {
@@ -305,7 +303,10 @@ describe('serverToS3', () => {
     });
 
     test('did not call unexpected functions', () => {
+      expect(mockedFs.readFileSync).not.toHaveBeenCalled();
+      expect(mockedFs.writeFileSync).not.toHaveBeenCalled();
       expect(mockedZlib.gzipSync).not.toHaveBeenCalled();
+      expect(mockedZlib.gunzipSync).not.toHaveBeenCalled();
       expect(mockedPgp.decrypt).not.toHaveBeenCalled();
     });
   });

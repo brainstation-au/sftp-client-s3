@@ -31,6 +31,7 @@ const resetAll = () => {
   mockedUpload.uploadToSftpServer.mockReset();
   mockedStorage.localStorageLocation.mockReset();
   mockedPgp.encrypt.mockReset();
+  mockedGzip.compress.mockReset();
 };
 
 describe('s3ToServer', () => {
@@ -86,6 +87,7 @@ describe('s3ToServer', () => {
         expect(mockedZlib.gzipSync).not.toHaveBeenCalled();
         expect(mockedZlib.gunzipSync).not.toHaveBeenCalled();
         expect(mockedPgp.encrypt).not.toHaveBeenCalled();
+        expect(mockedGzip.compress).not.toHaveBeenCalled();
       });
     });
   });
@@ -137,6 +139,7 @@ describe('s3ToServer', () => {
     test('no other function were called', () => {
       expect(mockedZlib.gzipSync).not.toHaveBeenCalled();
       expect(mockedZlib.gunzipSync).not.toHaveBeenCalled();
+      expect(mockedGzip.compress).not.toHaveBeenCalled();
     });
   });
 
@@ -197,6 +200,10 @@ describe('s3ToServer', () => {
         Buffer.from(encCompressedContent),
       );
     });
+
+    test('no other function were called', () => {
+      expect(mockedGzip.compress).not.toHaveBeenCalled();
+    });
   });
 
   describe('gzip is true, file is uncompressed, enctrypt is false', () => {
@@ -208,13 +215,9 @@ describe('s3ToServer', () => {
     };
     const localDir = '/tmp/something/';
     const localPath = localDir + 'bar.txt';
-    const fileContent = 'clear-text-content';
-    const compressedContent = 'compressed-content';
 
     beforeAll(async () => {
       mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
-      mockedFs.readFileSync.mockReturnValueOnce(Buffer.from(fileContent));
-      mockedZlib.gzipSync.mockReturnValueOnce(Buffer.from(compressedContent));
       await s3ToServer(options as S3ToServerOptions);
     });
 
