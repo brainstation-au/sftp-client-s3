@@ -1,4 +1,3 @@
-import * as path from 'path';
 import { Arguments, Argv, MiddlewareFunction } from 'yargs';
 import { getS3ObjectContent } from '../services/get-s3-object-content';
 import { s3ToServer } from '../services/s3-to-server';
