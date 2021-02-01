@@ -14,8 +14,8 @@ describe('gzip', () => {
     });
 
     afterAll(() => {
-      fs.rmdirSync(uncompressedFilepath);
-      fs.rmdirSync(compressedFilepath);
+      fs.unlinkSync(uncompressedFilepath);
+      fs.unlinkSync(compressedFilepath);
     });
 
     test('zipped content matches', async () => {
@@ -34,8 +34,8 @@ describe('gzip', () => {
     });
 
     afterAll(() => {
-      fs.rmdirSync(uncompressedFilepath);
-      fs.rmdirSync(compressedFilepath);
+      fs.unlinkSync(uncompressedFilepath);
+      fs.unlinkSync(compressedFilepath);
     });
 
     test('zipped content matches', () => {

@@ -33,6 +33,7 @@ const mockedGzip = gzip as jest.Mocked<typeof gzip>;
 const resetAll = () => {
   mockedFs.readFileSync.mockReset();
   mockedFs.writeFileSync.mockReset();
+  mockedFs.unlinkSync.mockReset();
   mockedZlib.gzipSync.mockReset();
   mockedZlib.gunzipSync.mockReset();
   mockedDownload.downloadFromSftpServer.mockReset();
@@ -92,17 +93,21 @@ describe('serverToS3', () => {
       });
 
       test('uploaded files to S3', () => {
-        expect(mockedUpload.uploadToS3).toHaveBeenCalledTimes(2);
-        expect(mockedUpload.uploadToS3).toHaveBeenCalledWith(
-          path.join(localDir, item.files[0]),
-          options.bucket,
-          keyPrefix + item.files[0],
-        );
-        expect(mockedUpload.uploadToS3).toHaveBeenCalledWith(
-          path.join(localDir, item.files[1]),
-          options.bucket,
-          keyPrefix + item.files[1],
-        );
+        expect(mockedUpload.uploadToS3).toHaveBeenCalledTimes(item.files.length);
+        item.files.forEach(file => {
+          expect(mockedUpload.uploadToS3).toHaveBeenCalledWith(
+            path.join(localDir, file),
+            options.bucket,
+            keyPrefix + file,
+          );
+        });
+      });
+
+      test('local files were removed', () => {
+        expect(fs.unlinkSync).toHaveBeenCalledTimes(item.files.length);
+        item.files.forEach(file => {
+          expect(fs.unlinkSync).toHaveBeenCalledWith(path.join(localDir, file));
+        });
       });
 
       test('did not call unexpected functions', () => {
@@ -312,6 +317,13 @@ describe('serverToS3', () => {
       expect(mockedUpload.uploadToS3).toHaveBeenCalledTimes(2);
       expect(mockedUpload.uploadToS3).toHaveBeenCalledWith(path.join(localDir, 'foo.txt'), options.bucket, keyPrefix + 'foo.txt');
       expect(mockedUpload.uploadToS3).toHaveBeenCalledWith(path.join(localDir, 'bar.txt'), options.bucket, keyPrefix + 'bar.txt');
+    });
+
+    test('local files were removed', () => {
+      expect(mockedFs.unlinkSync).toHaveBeenCalledTimes(3);
+      expect(mockedFs.unlinkSync).toHaveBeenCalledWith(path.join(localDir, 'foo.txt.gz'));
+      expect(mockedFs.unlinkSync).toHaveBeenCalledWith(path.join(localDir, 'foo.txt'));
+      expect(mockedFs.unlinkSync).toHaveBeenCalledWith(path.join(localDir, 'bar.txt'));
     });
 
     test('did not call unexpected functions', () => {

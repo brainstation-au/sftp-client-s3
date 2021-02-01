@@ -35,10 +35,12 @@ export const serverToS3 = async (options: ServerToS3Options): Promise<void> => {
     if (isGzipped && options.gunzip) {
       uploadName = path.parse(filename).name;
       await uncompress(path.join(localDir, filename), path.join(localDir, uploadName));
+      fs.unlinkSync(path.join(localDir, filename));
     }
 
     await uploadToS3(path.join(localDir, uploadName), options.bucket, `${keyPrefix}${uploadName}`);
     console.log(`s3://${options.bucket}/${keyPrefix}${uploadName} has been uploaded.`);
+    fs.unlinkSync(path.join(localDir, uploadName));
 
     if (options.rm) {
       await removeFromSftpServer(options, filename);
