@@ -8,7 +8,7 @@ import { encrypt } from './openpgp';
 import { uploadToSftpServer } from './upload-to-sftp-server';
 import { compress } from './gzip';
 
-export const s3ToServer = async (options: S3ToServerOptions): Promise<string> => {
+export const s3ToServer = async (options: S3ToServerOptions): Promise<void> => {
   const { bucket, s3Key } = options;
   const filename = path.basename(s3Key);
   const isGzipped = path.extname(filename).toLowerCase() === '.gz';
@@ -30,7 +30,10 @@ export const s3ToServer = async (options: S3ToServerOptions): Promise<string> =>
   if (!isGzipped && options.gzip) {
     uploadPath = localPath + '.gz';
     await compress(localPath, uploadPath);
+    fs.unlinkSync(localPath);
   }
 
-  return uploadToSftpServer(options, uploadPath);
+  const uploadResponse = await uploadToSftpServer(options, uploadPath);
+  console.log(uploadResponse);
+  fs.unlinkSync(uploadPath);
 };

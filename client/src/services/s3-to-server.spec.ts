@@ -25,6 +25,7 @@ const mockedGzip = gzip as jest.Mocked<typeof gzip>;
 const resetAll = () => {
   mockedFs.readFileSync.mockReset();
   mockedFs.writeFileSync.mockReset();
+  mockedFs.unlinkSync.mockReset();
   mockedZlib.gzipSync.mockReset();
   mockedZlib.gunzipSync.mockReset();
   mockedDownload.downloadFromS3.mockReset();
@@ -79,6 +80,11 @@ describe('s3ToServer', () => {
           options,
           localPath,
         );
+      });
+
+      test('local files were removed', () => {
+        expect(fs.unlinkSync).toHaveBeenCalledTimes(1);
+        expect(fs.unlinkSync).toHaveBeenLastCalledWith(localPath);
       });
 
       test('no other function were called', () => {
@@ -228,6 +234,12 @@ describe('s3ToServer', () => {
     test('compress was called with filepaths', () => {
       expect(mockedGzip.compress).toHaveBeenCalledTimes(1);
       expect(mockedGzip.compress).toHaveBeenCalledWith(localPath, localPath + '.gz');
+    });
+
+    test('local files were removed', () => {
+      expect(fs.unlinkSync).toHaveBeenCalledTimes(2);
+      expect(fs.unlinkSync).toHaveBeenCalledWith(localPath);
+      expect(fs.unlinkSync).toHaveBeenCalledWith(localPath + '.gz');
     });
 
     test('no other function were called', () => {

@@ -103,7 +103,7 @@ export const middlewares = [
   downloadGpgPublicKey,
 ];
 
-export const handler = async (argv: Arguments<Partial<S3ToServerArguments>>): Promise<string> => {
+export const handler = async (argv: Arguments<Partial<S3ToServerArguments>>): Promise<void> => {
   const options = S3ToServerOptions.check(argv);
   return s3ToServer(options);
 };

@@ -76,7 +76,6 @@ describe('s3-to-server', () => {
         let output: string;
 
         beforeAll(async () => {
-          mockedHandler.s3ToServer.mockResolvedValue('uploaded');
           mockedS3Content.getS3ObjectContent.mockResolvedValue('secret-code');
           process.env['SFTP_HOST'] = 'sftphost';
           process.env['SFTP_USER'] = 'test_user';
