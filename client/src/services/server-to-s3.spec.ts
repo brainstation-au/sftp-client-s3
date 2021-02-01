@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as zlib from 'zlib';
 import { ServerToS3Options } from '../types/server-to-s3-options';
 import * as download from './download-from-sftp-server';
+import * as list from './list-from-sftp-server';
 import * as storage from './local-storage-location';
 import * as openpgp from './openpgp';
 import * as remove from './remove-from-sftp-server';
@@ -13,6 +14,7 @@ import * as gzip from './gzip';
 jest.mock('fs');
 jest.mock('zlib');
 jest.mock('./download-from-sftp-server');
+jest.mock('./list-from-sftp-server');
 jest.mock('./local-storage-location');
 jest.mock('./remove-from-sftp-server');
 jest.mock('./upload-to-s3');
@@ -21,6 +23,7 @@ jest.mock('./gzip');
 const mockedFs = fs as jest.Mocked<typeof fs>;
 const mockedZlib = zlib as jest.Mocked<typeof zlib>;
 const mockedDownload = download as jest.Mocked<typeof download>;
+const mockedList = list as jest.Mocked<typeof list>;
 const mockedRemove = remove as jest.Mocked<typeof remove>;
 const mockedUpload = upload as jest.Mocked<typeof upload>;
 const mockedPgp = openpgp as jest.Mocked<typeof openpgp>;
@@ -33,6 +36,7 @@ const resetAll = () => {
   mockedZlib.gzipSync.mockReset();
   mockedZlib.gunzipSync.mockReset();
   mockedDownload.downloadFromSftpServer.mockReset();
+  mockedList.listFromSftpServer.mockReset();
   mockedRemove.removeFromSftpServer.mockReset();
   mockedUpload.uploadToS3.mockReset();
   mockedPgp.decrypt.mockReset();
@@ -60,6 +64,7 @@ describe('serverToS3', () => {
         bucket: 'my-bucket',
         keyPrefixPattern: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
         decrypt: false,
+        location: '/outbox',
         timezone: 'UTC',
         rm: false,
       };
@@ -67,7 +72,7 @@ describe('serverToS3', () => {
 
       beforeAll(async () => {
         mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
-        mockedDownload.downloadFromSftpServer.mockResolvedValueOnce(item.files);
+        mockedList.listFromSftpServer.mockResolvedValueOnce(item.files);
         await serverToS3(options as ServerToS3Options);
       });
 
@@ -76,11 +81,14 @@ describe('serverToS3', () => {
       });
 
       test('attempted to download files from sftp server', () => {
-        expect(mockedDownload.downloadFromSftpServer).toHaveBeenCalledTimes(1);
-        expect(mockedDownload.downloadFromSftpServer).toHaveBeenCalledWith(
-          options,
-          localDir,
-        );
+        expect(mockedDownload.downloadFromSftpServer).toHaveBeenCalledTimes(item.files.length);
+        item.files.forEach(file => {
+          expect(mockedDownload.downloadFromSftpServer).toHaveBeenCalledWith(
+            options,
+            path.join(options.location, file),
+            path.join(localDir, file),
+          );
+        });
       });
 
       test('uploaded files to S3', () => {
@@ -116,6 +124,7 @@ describe('serverToS3', () => {
       bucket: 'my-bucket',
       keyPrefixPattern: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
       decrypt: true,
+      location: '/outbox',
       timezone: 'UTC',
       rm: false,
     };
@@ -126,7 +135,7 @@ describe('serverToS3', () => {
 
     beforeAll(async () => {
       mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
-      mockedDownload.downloadFromSftpServer.mockResolvedValueOnce(['foo.txt', 'bar.txt']);
+      mockedList.listFromSftpServer.mockResolvedValueOnce(['foo.txt', 'bar.txt']);
       mockedFs.readFileSync.mockReturnValueOnce(Buffer.from(fileContent1));
       mockedFs.readFileSync.mockReturnValueOnce(Buffer.from(fileContent2));
       mockedPgp.decrypt.mockResolvedValueOnce(decContent1);
@@ -171,6 +180,7 @@ describe('serverToS3', () => {
       bucket: 'my-bucket',
       keyPrefixPattern: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
       decrypt: true,
+      location: '/outbox',
       timezone: 'UTC',
       rm: false,
     };
@@ -185,7 +195,7 @@ describe('serverToS3', () => {
 
     beforeAll(async () => {
       mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
-      mockedDownload.downloadFromSftpServer.mockResolvedValueOnce(['foo.txt.gz', 'bar.txt.gz']);
+      mockedList.listFromSftpServer.mockResolvedValueOnce(['foo.txt.gz', 'bar.txt.gz']);
       mockedFs.readFileSync.mockReturnValueOnce(Buffer.from(fileContent1));
       mockedFs.readFileSync.mockReturnValueOnce(Buffer.from(fileContent2));
       mockedZlib.gunzipSync.mockReturnValueOnce(Buffer.from(unzippedContent1));
@@ -236,13 +246,14 @@ describe('serverToS3', () => {
       bucket: 'my-bucket',
       keyPrefixPattern: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
       decrypt: false,
+      location: '/outbox',
       timezone: 'UTC',
       rm: true,
     };
 
     beforeAll(async () => {
       mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
-      mockedDownload.downloadFromSftpServer.mockResolvedValueOnce(['foo.txt', 'bar.txt']);
+      mockedList.listFromSftpServer.mockResolvedValueOnce(['foo.txt', 'bar.txt']);
       await serverToS3(options as ServerToS3Options);
     });
 
@@ -271,6 +282,7 @@ describe('serverToS3', () => {
       bucket: 'my-bucket',
       keyPrefixPattern: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
       decrypt: false,
+      location: '/outbox',
       timezone: 'UTC',
       rm: false,
       gunzip: true,
@@ -281,7 +293,7 @@ describe('serverToS3', () => {
 
     beforeAll(async () => {
       mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
-      mockedDownload.downloadFromSftpServer.mockResolvedValueOnce(['foo.txt.gz', 'bar.txt']);
+      mockedList.listFromSftpServer.mockResolvedValueOnce(['foo.txt.gz', 'bar.txt']);
       mockedFs.readFileSync.mockReturnValueOnce(Buffer.from(compressedContent));
       mockedZlib.gunzipSync.mockReturnValueOnce(Buffer.from(uncompressedContent));
       await serverToS3(options as ServerToS3Options);

@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as zlib from 'zlib';
 import { ServerToS3Options } from '../types/server-to-s3-options';
 import { downloadFromSftpServer } from './download-from-sftp-server';
+import { listFromSftpServer } from './list-from-sftp-server';
 import { uncompress } from './gzip';
 import { localStorageLocation } from './local-storage-location';
 import { decrypt } from './openpgp';
@@ -11,14 +12,16 @@ import { removeFromSftpServer } from './remove-from-sftp-server';
 import { uploadToS3 } from './upload-to-s3';
 
 export const serverToS3 = async (options: ServerToS3Options): Promise<void> => {
+  const filenames = await listFromSftpServer(options);
   const localDir = localStorageLocation();
-  const filenames = await downloadFromSftpServer(options, localDir);
-  console.log(`Files have been downloaded from ${options.host}`, JSON.stringify(filenames));
   const keyPrefix = moment().tz(options.timezone).format(options.keyPrefixPattern);
 
   for (const filename of filenames) {
-    const filepath = path.join(localDir, filename);
     const isGzipped = path.extname(filename).toLowerCase() === '.gz';
+    const remotePath = path.join(options.location, filename);
+    const filepath = path.join(localDir, filename);
+    const downloadResponse = await downloadFromSftpServer(options, remotePath, filepath);
+    console.log(downloadResponse);
 
     if (options.decrypt) {
       const fileContent = fs.readFileSync(filepath);
