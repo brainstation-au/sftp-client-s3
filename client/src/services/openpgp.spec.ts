@@ -5,8 +5,8 @@ describe('openpgp', () => {
   const content = 'Hello World!\n';
 
   describe('encrypt with passphrase', () => {
-    const publicKeyArmored = fs.readFileSync('/root/.gnupg/id_rsa.pub', 'utf-8');
-    const privateKeyArmored = fs.readFileSync('/root/.gnupg/id_rsa', 'utf-8');
+    const publicKeyArmored = fs.readFileSync('/opt/.gnupg/id_rsa.pub', 'utf-8');
+    const privateKeyArmored = fs.readFileSync('/opt/.gnupg/id_rsa', 'utf-8');
     const passphrase = 'sftp-client-s3';
     let encrypted: string;
 
@@ -20,8 +20,8 @@ describe('openpgp', () => {
   });
 
   describe('encrypt without passphrase', () => {
-    const publicKeyArmored = fs.readFileSync('/root/.gnupg/id_rsa_nopass.pub', 'utf-8');
-    const privateKeyArmored = fs.readFileSync('/root/.gnupg/id_rsa_nopass', 'utf-8');
+    const publicKeyArmored = fs.readFileSync('/opt/.gnupg/id_rsa_nopass.pub', 'utf-8');
+    const privateKeyArmored = fs.readFileSync('/opt/.gnupg/id_rsa_nopass', 'utf-8');
     let encrypted: string;
 
     beforeAll(async () => {

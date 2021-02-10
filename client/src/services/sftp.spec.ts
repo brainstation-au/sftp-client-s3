@@ -17,7 +17,7 @@ describe('execute', () => {
             host: 'sftphost',
             port: 22,
             username: `${sshType}_user`,
-            privateKey: fs.readFileSync(`/root/.ssh/id_${sshType}`, 'utf-8'),
+            privateKey: fs.readFileSync(`/opt/.ssh/id_${sshType}`, 'utf-8'),
           };
           await execute(options, callback);
         });
@@ -37,7 +37,7 @@ describe('execute', () => {
         host: 'sftphost',
         port: 22,
         username: 'rsa_user',
-        privateKey: fs.readFileSync('/root/.ssh/id_ecdsa', 'utf-8'),
+        privateKey: fs.readFileSync('/opt/.ssh/id_ecdsa', 'utf-8'),
       };
 
       afterAll(() => {
@@ -55,7 +55,7 @@ describe('execute', () => {
         host: 'sftphost',
         port: 22,
         username: 'rsa_user',
-        privateKey: fs.readFileSync('/root/.ssh/id_rsa', 'utf-8'),
+        privateKey: fs.readFileSync('/opt/.ssh/id_rsa', 'utf-8'),
       };
 
       afterAll(() => {

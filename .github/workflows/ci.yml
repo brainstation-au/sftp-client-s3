@@ -1,0 +1,25 @@
+name: CI
+
+on: push
+
+jobs:
+  unittest:
+    name: Unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Packages
+        run: docker-compose run --rm install
+
+      - name: Check linting
+        run: docker-compose run --rm lint
+
+      - name: Run unit tests
+        run: |
+          mkdir host/download host/upload
+          chmod 0777 host/download host/upload
+          docker-compose run --rm test
+          docker-compose down

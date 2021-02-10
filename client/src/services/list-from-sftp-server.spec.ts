@@ -26,7 +26,7 @@ describe('listFromSftpServer', () => {
       host: process.env['SFTP_HOST_NAME'] || '',
       port: 22,
       username: 'rsa_user',
-      privateKey: fs.readFileSync('/root/.ssh/id_rsa', 'utf-8'),
+      privateKey: fs.readFileSync('/opt/.ssh/id_rsa', 'utf-8'),
       location: remoteLocation,
       filename: undefined,
     })).resolves.toEqual(expect.arrayContaining(allFilename));
@@ -37,7 +37,7 @@ describe('listFromSftpServer', () => {
       host: process.env['SFTP_HOST_NAME'] || '',
       port: 22,
       username: 'rsa_user',
-      privateKey: fs.readFileSync('/root/.ssh/id_rsa', 'utf-8'),
+      privateKey: fs.readFileSync('/opt/.ssh/id_rsa', 'utf-8'),
       location: remoteLocation,
       filename: '*.txt',
     })).resolves.toEqual(expect.arrayContaining(randonFilename));
@@ -48,7 +48,7 @@ describe('listFromSftpServer', () => {
       host: process.env['SFTP_HOST_NAME'] || '',
       port: 22,
       username: 'rsa_user',
-      privateKey: fs.readFileSync('/root/.ssh/id_rsa', 'utf-8'),
+      privateKey: fs.readFileSync('/opt/.ssh/id_rsa', 'utf-8'),
       location: remoteLocation,
       filename: '^\\d{14}_.*\.txt$',
     })).resolves.toEqual(expect.arrayContaining([

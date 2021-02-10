@@ -11,4 +11,5 @@ export const ServerParams = Record({
     filename: String.Or(Undefined),
   }));
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export type ServerParams = Static<typeof ServerParams>;

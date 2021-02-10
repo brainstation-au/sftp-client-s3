@@ -7,4 +7,5 @@ export const Arguments = S3ToServerOptions
     gpgPublicKeyS3Uri: String,
   }));
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export type Arguments = Static<typeof Arguments>;

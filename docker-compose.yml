@@ -35,12 +35,12 @@ services:
     working_dir: /opt/code
     command: sh -c "npm run lint"
 
-  unittest:
+  test:
     image: node:alpine
     volumes:
       - ./client:/opt/code
-      - ./.ssh:/root/.ssh
-      - ./.gnupg:/root/.gnupg
+      - ./.ssh:/opt/.ssh
+      - ./.gnupg:/opt/.gnupg
       - ./host:/tmp/host
     environment:
       - SFTP_HOST_NAME=sftphost

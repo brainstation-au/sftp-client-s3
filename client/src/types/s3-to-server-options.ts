@@ -17,4 +17,5 @@ export const S3ToServerOptions = Record({
     gzip: Boolean,
   }));
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export type S3ToServerOptions = Static<typeof S3ToServerOptions>;

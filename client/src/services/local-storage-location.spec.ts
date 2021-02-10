@@ -27,7 +27,7 @@ describe('localStorageLocation', () => {
     let localDir: string;
 
     beforeAll(() => {
-      process.env['STORAGE_LOCATION'] = '/foo/bar/baz/';
+      process.env['STORAGE_LOCATION'] = '/tmp/foo/bar/';
       localDir = localStorageLocation();
     });
 
@@ -37,7 +37,7 @@ describe('localStorageLocation', () => {
     });
 
     test('path pattern', () => {
-      expect(localDir).toEqual(expect.stringMatching(/^\/foo\/bar\/baz\/.{6}$/));
+      expect(localDir).toEqual(expect.stringMatching(/^\/tmp\/foo\/bar\/.{6}$/));
     });
 
     test('a file can be created', () => {

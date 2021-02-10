@@ -28,4 +28,5 @@ export const ServerToS3Options = Record({
     }))
   );
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export type ServerToS3Options = Static<typeof ServerToS3Options>;

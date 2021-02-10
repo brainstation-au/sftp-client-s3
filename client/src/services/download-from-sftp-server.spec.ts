@@ -28,7 +28,7 @@ describe('downloadFromSftpServer', () => {
       host: process.env['SFTP_HOST_NAME'] || '',
       port: 22,
       username: 'rsa_user',
-      privateKey: fs.readFileSync('/root/.ssh/id_rsa', 'utf-8'),
+      privateKey: fs.readFileSync('/opt/.ssh/id_rsa', 'utf-8'),
     } as ServerParams, remotePath, localPath)).resolves.toEqual(`${remotePath} was successfully download to ${localPath}!`);
   });
 });
