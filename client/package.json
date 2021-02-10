@@ -29,9 +29,9 @@
   },
   "homepage": "https://github.com/brainstation-au/sftp-client-s3#readme",
   "dependencies": {
-    "aws-sdk": "^2.824.0",
-    "moment-timezone": "^0.5.32",
-    "openpgp": "^4.10.9",
+    "aws-sdk": "^2.841.0",
+    "moment-timezone": "^0.5.33",
+    "openpgp": "^4.10.10",
     "runtypes": "^5.0.1",
     "ssh2-sftp-client": "^6.0.1",
     "yargs": "^16.2.0"
@@ -39,15 +39,15 @@
   "devDependencies": {
     "@types/eslint": "^7.2.6",
     "@types/jest": "^26.0.19",
-    "@types/node": "^14.14.16",
-    "@types/openpgp": "^4.4.14",
+    "@types/node": "^14.14.25",
+    "@types/openpgp": "^4.4.15",
     "@types/ssh2-sftp-client": "^5.3.1",
-    "@types/yargs": "^15.0.12",
-    "@typescript-eslint/eslint-plugin": "^4.11.0",
-    "@typescript-eslint/parser": "^4.11.0",
-    "eslint": "^7.16.0",
+    "@types/yargs": "^16.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.15.0",
+    "@typescript-eslint/parser": "^4.15.0",
+    "eslint": "^7.19.0",
     "jest": "^26.6.3",
-    "ts-jest": "^26.4.4",
-    "typescript": "^4.1.3"
+    "ts-jest": "^26.5.1",
+    "typescript": "^4.1.4"
   }
 }
