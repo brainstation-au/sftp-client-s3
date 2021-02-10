@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Unit tests
+    name: Docker push
     runs-on: ubuntu-latest
 
     steps:
