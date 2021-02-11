@@ -1,6 +1,6 @@
 {
   "name": "sftp-client-s3",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "SFTP client to exchange files with S3",
   "main": "dist/cli/index.js",
   "scripts": {
