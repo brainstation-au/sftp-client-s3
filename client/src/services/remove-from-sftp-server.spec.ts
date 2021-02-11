@@ -9,7 +9,7 @@ describe('removeFromSftpServer', () => {
   const content = 'Hello World!\n';
 
   beforeAll(() => {
-    fs.writeFileSync(path.join(hostDir, filename), content);
+    fs.writeFileSync(path.join(hostDir, filename), content, {encoding: 'utf-8'});
   });
 
   test('removes file from sftp server', async () => {
