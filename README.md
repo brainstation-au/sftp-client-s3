@@ -88,6 +88,8 @@ Options:
   -b, --bucket, --bucket-name          S3 bucket name        [string] [required]
       --s3-key                         S3 key for the file to upload
                                                              [string] [required]
+      --override                       Override a file in SFTP server if already
+                                       exists         [boolean] [default: false]
       --gzip, --compress               Compress file content if not already
                                        compressed     [boolean] [default: false]
   -e, --encrypt                        Encrypt file content with GPG public key
@@ -109,6 +111,7 @@ Options:
 | S3_KEY  | S3 key for the file to upload  |
 | KEY_PREFIX_PATTERN  | A string to pass through [moment format](https://momentjs.com/docs/#/displaying/format/) to get S3 key prefix  |
 | TIMEZONE  | Name of the timezone to translate key-prefix-pattern  |
+| OVERRIDE  | Override a file in SFTP server if already exists  |
 | COMPRESS  | Compress file content if not already compressed  |
 | UNCOMPRESS  | Uncompress file content if compressed  |
 | ENCRYPT  | Encrypt file content with PGP public key  |

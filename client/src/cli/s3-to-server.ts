@@ -68,6 +68,11 @@ export const builder = (yargs: Argv<unknown>): Argv<Partial<S3ToServerArguments>
     requiresArg: true,
     type: 'string',
   })
+  .option('override', {
+    default: process.env['OVERRIDE'] === 'true' || false,
+    description: 'Override a file in SFTP server if already exists',
+    type: 'boolean',
+  })
   .option('gzip', {
     alias: ['compress'],
     default: process.env['COMPRESS'] === 'true' || false,

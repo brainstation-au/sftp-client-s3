@@ -113,6 +113,7 @@ describe('s3-to-server', () => {
             encrypt: false,
             gpgPublicKey: 'secret-code',
             gzip: true,
+            override: false,
           }));
         });
       });

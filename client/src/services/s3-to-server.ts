@@ -7,6 +7,9 @@ import { localStorageLocation } from './local-storage-location';
 import { encrypt } from './openpgp';
 import { uploadToSftpServer } from './upload-to-sftp-server';
 import { compress } from './gzip';
+import { existsInSftpServer } from './exists-in-sftp-server';
+import { removeFromSftpServer } from './remove-from-sftp-server';
+import { remoteFilename } from './remote-filename';
 
 export const s3ToServer = async (options: S3ToServerOptions): Promise<void> => {
   const { bucket, s3Key } = options;
@@ -31,6 +34,15 @@ export const s3ToServer = async (options: S3ToServerOptions): Promise<void> => {
     uploadPath = localPath + '.gz';
     await compress(localPath, uploadPath);
     fs.unlinkSync(localPath);
+  }
+
+  if (options.override) {
+    // TODO: create a function for remotePath.
+    const remoteFile = remoteFilename(uploadPath, options.filename);
+    const alreadyExists = await existsInSftpServer(options, remoteFile);
+    if (alreadyExists) {
+      await removeFromSftpServer(options, remoteFile);
+    }
   }
 
   const uploadResponse = await uploadToSftpServer(options, uploadPath);

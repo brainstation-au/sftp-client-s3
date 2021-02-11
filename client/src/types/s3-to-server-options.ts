@@ -5,6 +5,7 @@ export const S3ToServerOptions = Record({
   bucket: String,
   s3Key: String,
   encrypt: Boolean,
+  override: Boolean,
 })
   .And(Record({
     encrypt: Literal(false),

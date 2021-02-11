@@ -21,6 +21,8 @@ Options:
   -b, --bucket, --bucket-name          S3 bucket name        [string] [required]
       --s3-key                         S3 key for the file to upload
                                                              [string] [required]
+      --override                       Override a file in SFTP server if already
+                                       exists         [boolean] [default: false]
       --gzip, --compress               Compress file content if not already
                                        compressed     [boolean] [default: false]
   -e, --encrypt                        Encrypt file content with GPG public key

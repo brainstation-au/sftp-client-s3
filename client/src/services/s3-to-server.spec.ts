@@ -7,6 +7,8 @@ import * as openpgp from './openpgp';
 import * as gzip from './gzip';
 import { s3ToServer } from './s3-to-server';
 import * as upload from './upload-to-sftp-server';
+import * as exists from './exists-in-sftp-server';
+import * as remove from './remove-from-sftp-server';
 jest.mock('fs');
 jest.mock('zlib');
 jest.mock('./upload-to-sftp-server');
@@ -14,6 +16,8 @@ jest.mock('./download-from-s3');
 jest.mock('./local-storage-location');
 jest.mock('./openpgp');
 jest.mock('./gzip');
+jest.mock('./exists-in-sftp-server');
+jest.mock('./remove-from-sftp-server');
 const mockedFs = fs as jest.Mocked<typeof fs>;
 const mockedZlib = zlib as jest.Mocked<typeof zlib>;
 const mockedDownload = download as jest.Mocked<typeof download>;
@@ -21,6 +25,8 @@ const mockedUpload = upload as jest.Mocked<typeof upload>;
 const mockedStorage = storage as jest.Mocked<typeof storage>;
 const mockedPgp = openpgp as jest.Mocked<typeof openpgp>;
 const mockedGzip = gzip as jest.Mocked<typeof gzip>;
+const mockedExists = exists as jest.Mocked<typeof exists>;
+const mockedRemove = remove as jest.Mocked<typeof remove>;
 
 const resetAll = () => {
   mockedFs.readFileSync.mockReset();
@@ -33,6 +39,8 @@ const resetAll = () => {
   mockedStorage.localStorageLocation.mockReset();
   mockedPgp.encrypt.mockReset();
   mockedGzip.compress.mockReset();
+  mockedExists.existsInSftpServer.mockReset();
+  mockedRemove.removeFromSftpServer.mockReset();
 };
 
 describe('s3ToServer', () => {
@@ -248,6 +256,56 @@ describe('s3ToServer', () => {
       expect(mockedZlib.gzipSync).not.toHaveBeenCalled();
       expect(mockedZlib.gunzipSync).not.toHaveBeenCalled();
       expect(mockedPgp.encrypt).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('override is true, all other branches are false', () => {
+    const options = {
+      bucket: 'my-bucket',
+      s3Key: 'my-project/foo/' + 'bar.txt',
+      encrypt: false,
+      gzip: false,
+      override: true,
+      location: '/foo'
+    };
+    const localDir = '/tmp/something/';
+
+    describe('when a file does not exit', () => {
+      beforeAll(async () => {
+        mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
+        mockedExists.existsInSftpServer.mockResolvedValueOnce(false);
+        await s3ToServer(options as S3ToServerOptions);
+      });
+
+      afterAll(() => {
+        resetAll();
+      });
+
+      test('file existance was checked', () => {
+        expect(mockedExists.existsInSftpServer).toHaveBeenCalledTimes(1);
+        expect(mockedExists.existsInSftpServer).toHaveBeenCalledWith(options, 'bar.txt');
+      });
+
+      test('no attempt to remove a file', () => {
+        expect(mockedRemove.removeFromSftpServer).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when a file exits', () => {
+      beforeAll(async () => {
+        mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
+        mockedExists.existsInSftpServer.mockResolvedValueOnce(true);
+        await s3ToServer(options as S3ToServerOptions);
+      });
+
+      afterAll(() => {
+        resetAll();
+      });
+
+      test('no attempt to remove a file', () => {
+        expect(mockedRemove.removeFromSftpServer).toHaveBeenCalledTimes(1);
+        expect(mockedRemove.removeFromSftpServer).toHaveBeenCalledWith(options, 'bar.txt');
+      });
     });
   });
 });
