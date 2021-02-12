@@ -4,4 +4,7 @@ module.exports = {
   verbose: true,
   collectCoverage: true,
   roots: ['src'],
+  setupFiles: [
+    './jest.setup.ts',
+  ],
 };

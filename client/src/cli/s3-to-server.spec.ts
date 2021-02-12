@@ -2,6 +2,9 @@ import yargs, { Arguments } from 'yargs';
 import * as s3ToServer from './s3-to-server';
 import * as handler from '../services/s3-to-server';
 import * as s3Content from '../services/get-s3-object-content';
+import { container } from '../inversify/config';
+import { S3ToServerOptions } from '../types/s3-to-server-options';
+import { S3_TO_SERVER_OPTIONS } from '../inversify/constants';
 jest.mock('../services/s3-to-server');
 jest.mock('../services/get-s3-object-content');
 const mockedHandler = handler as jest.Mocked<typeof handler>;
@@ -72,50 +75,64 @@ describe('s3-to-server', () => {
     });
 
     describe('required params are available', () => {
-      describe('params are available through environment', () => {
-        let output: string;
+      let output: string;
 
-        beforeAll(async () => {
-          mockedS3Content.getS3ObjectContent.mockResolvedValue('secret-code');
-          process.env['SFTP_HOST'] = 'sftphost';
-          process.env['SFTP_USER'] = 'test_user';
-          process.env['S3_KEY'] = 'upload/here/filename.txt';
-          process.env['GPG_PUBLIC_KEY_S3_URI'] = 'gpg-key-s3-uri';
+      beforeAll(async () => {
+        mockedS3Content.getS3ObjectContent.mockResolvedValue('secret-code');
+        process.env['SFTP_HOST'] = 'sftphost';
+        process.env['SFTP_USER'] = 'test_user';
+        process.env['S3_KEY'] = 'upload/here/filename.txt';
+        process.env['GPG_PUBLIC_KEY_S3_URI'] = 'gpg-key-s3-uri';
 
-          output = await parseArgs(
-            's3-to-server --port 22 --private-key-s3-uri s3-uri --location /download/from/here -b test-bucket --gzip'
-          );
-        });
+        output = await parseArgs(
+          's3-to-server --port 22 --private-key-s3-uri s3-uri --location /download/from/here -b test-bucket --gzip'
+        );
+      });
 
-        afterAll(() => {
-          mockedHandler.s3ToServer.mockReset();
-          mockedS3Content.getS3ObjectContent.mockReset();
-          delete process.env['SFTP_HOST'];
-          delete process.env['SFTP_USER'];
-          delete process.env['S3_KEY'];
-          delete process.env['GPG_PUBLIC_KEY_S3_URI'];
-        });
+      afterAll(() => {
+        mockedHandler.s3ToServer.mockReset();
+        mockedS3Content.getS3ObjectContent.mockReset();
+        delete process.env['SFTP_HOST'];
+        delete process.env['SFTP_USER'];
+        delete process.env['S3_KEY'];
+        delete process.env['GPG_PUBLIC_KEY_S3_URI'];
+      });
 
-        test('resolves successfully', () => {
-          expect(output).toEqual('');
-        });
+      test('resolves successfully', () => {
+        expect(output).toEqual('');
+      });
 
-        test('calls handler with arguments', async () => {
-          expect(mockedHandler.s3ToServer).toHaveBeenCalledTimes(1);
-          expect(mockedHandler.s3ToServer).toHaveBeenCalledWith(expect.objectContaining({
-            host: 'sftphost',
-            port: 22,
-            user: 'test_user',
-            privateKey: 'secret-code',
-            location: '/download/from/here',
-            bucket: 'test-bucket',
-            s3Key: 'upload/here/filename.txt',
-            encrypt: false,
-            gpgPublicKey: 'secret-code',
-            gzip: true,
-            override: false,
-          }));
-        });
+      test('options are available in global container', () => {
+        expect(container.get<S3ToServerOptions>(S3_TO_SERVER_OPTIONS)).toEqual(expect.objectContaining({
+          host: 'sftphost',
+          port: 22,
+          user: 'test_user',
+          privateKey: 'secret-code',
+          location: '/download/from/here',
+          bucket: 'test-bucket',
+          s3Key: 'upload/here/filename.txt',
+          encrypt: false,
+          gpgPublicKey: 'secret-code',
+          gzip: true,
+          override: false,
+        }));
+      });
+
+      test('calls handler with arguments', async () => {
+        expect(mockedHandler.s3ToServer).toHaveBeenCalledTimes(1);
+        expect(mockedHandler.s3ToServer).toHaveBeenCalledWith(expect.objectContaining({
+          host: 'sftphost',
+          port: 22,
+          user: 'test_user',
+          privateKey: 'secret-code',
+          location: '/download/from/here',
+          bucket: 'test-bucket',
+          s3Key: 'upload/here/filename.txt',
+          encrypt: false,
+          gpgPublicKey: 'secret-code',
+          gzip: true,
+          override: false,
+        }));
       });
     });
   });

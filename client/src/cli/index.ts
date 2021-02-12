@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import 'reflect-metadata';
+
 import * as fs from 'fs';
 import yargs from 'yargs';
 import * as serverToS3 from './server-to-s3';
