@@ -4,7 +4,7 @@ import * as handler from '../services/s3-to-server';
 import * as s3Content from '../services/get-s3-object-content';
 import { container } from '../inversify/config';
 import { S3ToServerOptions } from '../types/s3-to-server-options';
-import { S3_TO_SERVER_OPTIONS } from '../inversify/constants';
+import { COMMAND_OPTIONS } from '../inversify/constants';
 jest.mock('../services/s3-to-server');
 jest.mock('../services/get-s3-object-content');
 const mockedHandler = handler as jest.Mocked<typeof handler>;
@@ -71,7 +71,7 @@ describe('s3-to-server', () => {
       });
 
       test('options are available in global container', () => {
-        expect(container.get<S3ToServerOptions>(S3_TO_SERVER_OPTIONS)).toEqual(expect.objectContaining({
+        expect(container.get<S3ToServerOptions>(COMMAND_OPTIONS)).toEqual(expect.objectContaining({
           host: 'sftphost',
           port: 22,
           user: 'test_user',
