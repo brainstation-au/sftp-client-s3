@@ -52,15 +52,8 @@ Options:
       --timezone                            Name of the timezone to translate
                                             key-prefix-pattern
                                                        [string] [default: \\"UTC\\"]
-  -d, --decrypt                             Decrypt file content with GPG
-                                            private key
-                                                      [boolean] [default: false]
       --gunzip, --uncompress                Uncompress file content if
                                             compressed[boolean] [default: false]
-      --gpg-private-key-s3-uri              S3 URI of the GPG private key to
-                                            decrypt file content        [string]
-      --gpg-passphrase, --gpg-password      Passphrase to decrypt GPG private
-                                            key                         [string]
 ```
 
 **The value for --key-prefix option will be passed through [moment format](https://momentjs.com/docs/#/displaying/format/) function to enable date time values in the S3 key.**
@@ -92,10 +85,6 @@ Options:
                                        exists         [boolean] [default: false]
       --gzip, --compress               Compress file content if not already
                                        compressed     [boolean] [default: false]
-  -e, --encrypt                        Encrypt file content with GPG public key
-                                                      [boolean] [default: false]
-      --gpg-public-key-s3-uri          S3 URI of the GPG public key to encrypt
-                                       file content                     [string]
 ```
 
 ## Environment variables
@@ -114,11 +103,6 @@ Options:
 | OVERRIDE  | Override a file in SFTP server if already exists  |
 | COMPRESS  | Compress file content if not already compressed  |
 | UNCOMPRESS  | Uncompress file content if compressed  |
-| ENCRYPT  | Encrypt file content with PGP public key  |
-| GPG_PUBLIC_KEY_S3_URI  | S3 URI of the GPG public key to encrypt file content  |
-| DECRYPT  | Decrypt file content with PGP private key  |
-| GPG_PRIVATE_KEY_S3_URI  | S3 URI of the GPG private key to decrypt file content  |
-| GPG_PASSPHRASE  | Passphrase to decrypt GPG private key  |
 
 *When a combination of the above environment variables are present, corresponding command options become optional. But if you provide value for a command option, that has higher priority over environemnt variable.*
 
@@ -168,8 +152,3 @@ $ docker run brainstation/sftp-client-s3 s3-to-server \
 |     --timezone                       | :heavy_check_mark:  | :heavy_multiplication_x:  |
 |     --gunzip, --uncompress           | :heavy_check_mark:  | :heavy_multiplication_x:  |
 |     --gzip, --compress               | :heavy_multiplication_x:  | :heavy_check_mark:  |
-| -d, --decrypt                        | :heavy_check_mark:  | :heavy_multiplication_x:  |
-|     --gpg-private-key-s3-uri         | :heavy_check_mark:  | :heavy_multiplication_x:  |
-|     --gpg-passphrase, --gpg-password | :heavy_check_mark:  | :heavy_multiplication_x:  |
-| -e, --encrypt                        | :heavy_multiplication_x:  | :heavy_check_mark:  |
-|     --gpg-public-key-s3-uri          | :heavy_multiplication_x:  | :heavy_check_mark:  |
