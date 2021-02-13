@@ -23,8 +23,9 @@ Options:
                                                              [string] [required]
       --override                       Override a file in SFTP server if already
                                        exists         [boolean] [default: false]
-      --gzip, --compress               Compress file content if not already
-                                       compressed     [boolean] [default: false]"
+      --gzip, --compress               Compress file content if the filename
+                                       does not have a \`.gz\` extension
+                                                      [boolean] [default: false]"
 `;
 
 exports[`s3-to-server help basic help output on parent 1`] = `

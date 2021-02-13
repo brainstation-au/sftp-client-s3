@@ -20,15 +20,15 @@ Options:
                                                              [string] [required]
   -r, --remove, --rm, --delete         Delete remote files after successfull
                                        upload to S3   [boolean] [default: false]
-  -f, --filename, --filename-pattern   Name of the file or a regular expression
-                                       to find a subset                 [string]
+  -f, --filename, --filename-pattern   A string that will be used as a regular
+                                       expression to find a list of files in the
+                                       server location                  [string]
   -b, --bucket, --bucket-name          S3 bucket name        [string] [required]
-      --key-prefix                     A string to pass through [moment
-                                       format](https://momentjs.com/docs/#/displ
-                                       aying/format/) to get S3 key prefix
+      --key-prefix                     S3 key prefix, original filename from the
+                                       server will get appended
                                                              [string] [required]
-      --gunzip, --uncompress           Uncompress file content if compressed
-                                                      [boolean] [default: false]"
+      --gunzip, --uncompress           Uncompress file content if the file has a
+                                       \`.gz\` extension[boolean] [default: false]"
 `;
 
 exports[`server-to-s3 help basic help output on parent 1`] = `

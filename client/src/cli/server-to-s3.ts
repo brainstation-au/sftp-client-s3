@@ -62,7 +62,7 @@ export const builder = (yargs: Argv<unknown>): Argv<Partial<ServerToS3Arguments>
   .option('filename', {
     alias: ['filename-pattern', 'f'],
     default: process.env['FILENAME'],
-    description: 'Name of the file or a regular expression to find a subset',
+    description: 'A string that will be used as a regular expression to find a list of files in the server location',
     nargs: 1,
     type: 'string',
   })
@@ -78,7 +78,7 @@ export const builder = (yargs: Argv<unknown>): Argv<Partial<ServerToS3Arguments>
   .option('key-prefix', {
     default: process.env['KEY_PREFIX'],
     demandOption: !('KEY_PREFIX' in process.env),
-    description: 'A string to pass through [moment format](https://momentjs.com/docs/#/displaying/format/) to get S3 key prefix',
+    description: 'S3 key prefix, original filename from the server will get appended',
     nargs: 1,
     requiresArg: true,
     type: 'string',
@@ -86,7 +86,7 @@ export const builder = (yargs: Argv<unknown>): Argv<Partial<ServerToS3Arguments>
   .option('gunzip', {
     alias: ['uncompress'],
     default: process.env['UNCOMPRESS'] === 'true' || false,
-    description: 'Uncompress file content if compressed',
+    description: 'Uncompress file content if the file has a `.gz` extension',
     type: 'boolean',
   });
 

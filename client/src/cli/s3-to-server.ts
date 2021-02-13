@@ -78,7 +78,7 @@ export const builder = (yargs: Argv<unknown>): Argv<Partial<S3ToServerArguments>
   .option('gzip', {
     alias: ['compress'],
     default: process.env['COMPRESS'] === 'true' || false,
-    description: 'Compress file content if not already compressed',
+    description: 'Compress file content if the filename does not have a `.gz` extension',
     type: 'boolean',
   });
 
