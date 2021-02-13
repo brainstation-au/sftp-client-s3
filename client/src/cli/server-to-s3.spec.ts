@@ -33,12 +33,12 @@ describe('server-to-s3', () => {
     describe('required params are not available', () => {
       test('with no arguments', async () => {
         await expect(parseArgs('server-to-s3')).rejects
-          .toThrow('Missing required arguments: host, user, private-key-s3-uri, location, bucket, key-prefix-pattern');
+          .toThrow('Missing required arguments: host, user, private-key-s3-uri, location, bucket, key-prefix');
       });
 
       test('with few arguments', async () => {
         await expect(parseArgs('server-to-s3 --host sftphost --location /download/from/here -b test-bucket')).rejects
-          .toThrow('Missing required arguments: user, private-key-s3-uri, key-prefix-pattern');
+          .toThrow('Missing required arguments: user, private-key-s3-uri, key-prefix');
       });
     });
 
@@ -50,7 +50,7 @@ describe('server-to-s3', () => {
         mockedS3Content.getS3ObjectContent.mockResolvedValue('secret-code');
         process.env['SFTP_HOST'] = 'sftphost';
         process.env['SFTP_USER'] = 'test_user';
-        process.env['KEY_PREFIX_PATTERN'] = '[upload/here]';
+        process.env['KEY_PREFIX'] = 'upload/here';
 
         output = await parseArgs('server-to-s3 --port 22 --private-key-s3-uri s3-uri -r --location /download/from/here -b test-bucket');
       });
@@ -60,7 +60,7 @@ describe('server-to-s3', () => {
         mockedS3Content.getS3ObjectContent.mockReset();
         delete process.env['SFTP_HOST'];
         delete process.env['SFTP_USER'];
-        delete process.env['KEY_PREFIX_PATTERN'];
+        delete process.env['KEY_PREFIX'];
       });
 
       test('resolves successfully', () => {
@@ -76,7 +76,7 @@ describe('server-to-s3', () => {
           location: '/download/from/here',
           filename: undefined,
           bucket: 'test-bucket',
-          keyPrefixPattern: '[upload/here]',
+          keyPrefix: 'upload/here',
           rm: true,
         }));
       });
@@ -91,7 +91,7 @@ describe('server-to-s3', () => {
           location: '/download/from/here',
           filename: undefined,
           bucket: 'test-bucket',
-          keyPrefixPattern: '[upload/here]',
+          keyPrefix: 'upload/here',
           rm: true,
         }));
       });

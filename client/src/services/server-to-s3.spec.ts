@@ -1,15 +1,14 @@
 import * as fs from 'fs';
-import moment from 'moment-timezone';
 import * as path from 'path';
 import * as zlib from 'zlib';
 import { ServerToS3Options } from '../types/server-to-s3-options';
 import * as download from './download-from-sftp-server';
+import * as gzip from './gzip';
 import * as list from './list-from-sftp-server';
 import * as storage from './local-storage-location';
 import * as remove from './remove-from-sftp-server';
 import { serverToS3 } from './server-to-s3';
 import * as upload from './upload-to-s3';
-import * as gzip from './gzip';
 jest.mock('fs');
 jest.mock('zlib');
 jest.mock('./download-from-sftp-server');
@@ -42,10 +41,6 @@ const resetAll = () => {
 };
 
 describe('serverToS3', () => {
-  const date = moment().tz('utc');
-  const year = date.format('YYYY');
-  const month = date.format('MM');
-  const day = date.format('DD');
   const localDir = '/tmp/qwerty/';
 
   [{
@@ -59,12 +54,10 @@ describe('serverToS3', () => {
     describe(`files are ${item.compression}, rm is false`, () => {
       const options = {
         bucket: 'my-bucket',
-        keyPrefixPattern: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
+        keyPrefix: 'my-project/foo/year=2021/month=02/day=01/',
         location: '/outbox',
-        timezone: 'UTC',
         rm: false,
       };
-      const keyPrefix = `my-project/foo/year=${year}/month=${month}/day=${day}/`;
 
       beforeAll(async () => {
         mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
@@ -93,7 +86,7 @@ describe('serverToS3', () => {
           expect(mockedUpload.uploadToS3).toHaveBeenCalledWith(
             path.join(localDir, file),
             options.bucket,
-            keyPrefix + file,
+            options.keyPrefix + file,
           );
         });
       });
@@ -119,9 +112,8 @@ describe('serverToS3', () => {
   describe('rm is true, files are uncompressed', () => {
     const options = {
       bucket: 'my-bucket',
-      keyPrefixPattern: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
+      keyPrefix: 'my-project/foo/year=2021/month=02/day=01/',
       location: '/outbox',
-      timezone: 'UTC',
       rm: true,
     };
 
@@ -153,13 +145,11 @@ describe('serverToS3', () => {
   describe('gunzip is true, rm is false, files are uncompressed', () => {
     const options = {
       bucket: 'my-bucket',
-      keyPrefixPattern: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
+      keyPrefix: 'my-project/foo/year=2021/month=02/day=01/',
       location: '/outbox',
-      timezone: 'UTC',
       rm: false,
       gunzip: true,
     };
-    const keyPrefix = `my-project/foo/year=${year}/month=${month}/day=${day}/`;
     const compressedContent = 'compressed-content';
     const uncompressedContent = 'uncompressed-content';
 
@@ -182,8 +172,16 @@ describe('serverToS3', () => {
 
     test('uncompressed file was uploaded', () => {
       expect(mockedUpload.uploadToS3).toHaveBeenCalledTimes(2);
-      expect(mockedUpload.uploadToS3).toHaveBeenCalledWith(path.join(localDir, 'foo.txt'), options.bucket, keyPrefix + 'foo.txt');
-      expect(mockedUpload.uploadToS3).toHaveBeenCalledWith(path.join(localDir, 'bar.txt'), options.bucket, keyPrefix + 'bar.txt');
+      expect(mockedUpload.uploadToS3).toHaveBeenCalledWith(
+        path.join(localDir, 'foo.txt'),
+        options.bucket,
+        options.keyPrefix + 'foo.txt',
+      );
+      expect(mockedUpload.uploadToS3).toHaveBeenCalledWith(
+        path.join(localDir, 'bar.txt'),
+        options.bucket,
+        options.keyPrefix + 'bar.txt',
+      );
     });
 
     test('local files were removed', () => {

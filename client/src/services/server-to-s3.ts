@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import moment from 'moment-timezone';
 import * as path from 'path';
 import { ServerToS3Options } from '../types/server-to-s3-options';
 import { downloadFromSftpServer } from './download-from-sftp-server';
@@ -12,7 +11,6 @@ import { uploadToS3 } from './upload-to-s3';
 export const serverToS3 = async (options: ServerToS3Options): Promise<void> => {
   const filenames = await listFromSftpServer(options);
   const localDir = localStorageLocation();
-  const keyPrefix = moment().tz(options.timezone).format(options.keyPrefixPattern);
 
   for (const filename of filenames) {
     const isGzipped = path.extname(filename).toLowerCase() === '.gz';
@@ -28,8 +26,8 @@ export const serverToS3 = async (options: ServerToS3Options): Promise<void> => {
       fs.unlinkSync(path.join(localDir, filename));
     }
 
-    await uploadToS3(path.join(localDir, uploadName), options.bucket, `${keyPrefix}${uploadName}`);
-    console.log(`s3://${options.bucket}/${keyPrefix}${uploadName} has been uploaded.`);
+    await uploadToS3(path.join(localDir, uploadName), options.bucket, `${options.keyPrefix}${uploadName}`);
+    console.log(`s3://${options.bucket}/${options.keyPrefix}${uploadName} has been uploaded.`);
     fs.unlinkSync(path.join(localDir, uploadName));
 
     if (options.rm) {

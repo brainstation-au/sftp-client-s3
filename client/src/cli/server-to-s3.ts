@@ -75,18 +75,10 @@ export const builder = (yargs: Argv<unknown>): Argv<Partial<ServerToS3Arguments>
     requiresArg: true,
     type: 'string',
   })
-  .option('key-prefix-pattern', {
-    alias: ['s3-key-prefix-pattern'],
-    default: process.env['KEY_PREFIX_PATTERN'],
-    demandOption: !('KEY_PREFIX_PATTERN' in process.env),
+  .option('key-prefix', {
+    default: process.env['KEY_PREFIX'],
+    demandOption: !('KEY_PREFIX' in process.env),
     description: 'A string to pass through [moment format](https://momentjs.com/docs/#/displaying/format/) to get S3 key prefix',
-    nargs: 1,
-    requiresArg: true,
-    type: 'string',
-  })
-  .option('timezone', {
-    default: process.env['TIMEZONE'] || 'UTC',
-    description: 'Name of the timezone to translate key-prefix-pattern',
     nargs: 1,
     requiresArg: true,
     type: 'string',

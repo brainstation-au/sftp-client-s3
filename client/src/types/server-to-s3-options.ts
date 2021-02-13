@@ -1,11 +1,9 @@
-import moment from 'moment-timezone';
 import { Boolean, Number, Partial, Record, Static, String } from 'runtypes';
 import { ServerParams } from './server-params';
 
 export const ServerToS3Options = Record({
   bucket: String,
-  keyPrefixPattern: String,
-  timezone: String.withConstraint(s => !!moment.tz.zone(s) || `${s} is not a valid timezone`),
+  keyPrefix: String,
 })
   .And(Partial({
     rm: Boolean,
