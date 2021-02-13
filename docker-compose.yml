@@ -26,7 +26,7 @@ services:
     volumes:
       - ./client:/opt/code
     working_dir: /opt/code
-    command: sh -c "npm run build-ts"
+    command: sh -c "npm run build"
 
   lint:
     image: node:alpine

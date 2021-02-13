@@ -9,10 +9,9 @@
     "watch-test": "npm run test -- --watchAll",
     "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet",
     "start": "npm run serve",
-    "build": "npm run lint && npm run build-ts",
     "serve": "node dist/index.js",
     "build-test": "npm run clean-up && tsc",
-    "build-ts": "tsc -p tsconfig.app.json"
+    "build": "npm run clean-up && tsc -p tsconfig.app.json"
   },
   "repository": {
     "type": "git",
