@@ -14,7 +14,7 @@ services:
       - ./host/upload:/home/ed25519_user/upload
       - ./host/upload:/home/rsa_user/upload
 
-  install:
+  install: &install
     image: node:alpine
     volumes:
       - ./client:/opt/code
@@ -22,21 +22,15 @@ services:
     command: sh -c "npm install"
 
   build:
-    image: node:alpine
-    volumes:
-      - ./client:/opt/code
-    working_dir: /opt/code
+    <<: *install
     command: sh -c "npm run build"
 
   lint:
-    image: node:alpine
-    volumes:
-      - ./client:/opt/code
-    working_dir: /opt/code
+    <<: *install
     command: sh -c "npm run lint"
 
   test:
-    image: node:alpine
+    <<: *install
     volumes:
       - ./client:/opt/code
       - ./.ssh:/opt/.ssh
@@ -50,5 +44,4 @@ services:
       - sftphost
     links:
       - sftphost
-    working_dir: /opt/code
     command: sh -c "bin/wait-for sftphost:22 -t 5 -- npm test"
