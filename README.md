@@ -94,7 +94,6 @@ Options:
 | BUCKET_NAME  | S3 bucket name  |
 | S3_KEY  | S3 key for the file to upload  |
 | KEY_PREFIX  | S3 key prefix, original filename from the server will get appended  |
-| TIMEZONE  | Name of the timezone to translate key-prefix-pattern  |
 | OVERRIDE  | Override a file in SFTP server if already exists  |
 | COMPRESS  | Compress file content if the filename does not have a `.gz` extension  |
 | UNCOMPRESS  | Uncompress file content if the file has a `.gz` extension  |
@@ -142,6 +141,5 @@ $ docker run brainstation/sftp-client-s3 s3-to-server \
 | -b, --bucket, --bucket-name          | :heavy_check_mark:  | :heavy_check_mark:  |
 |     --s3-key                         | :heavy_multiplication_x:  | :heavy_check_mark:  |
 |     --key-prefix                     | :heavy_check_mark:  | :heavy_multiplication_x:  |
-|     --timezone                       | :heavy_check_mark:  | :heavy_multiplication_x:  |
 |     --gunzip, --uncompress           | :heavy_check_mark:  | :heavy_multiplication_x:  |
 |     --gzip, --compress               | :heavy_multiplication_x:  | :heavy_check_mark:  |
