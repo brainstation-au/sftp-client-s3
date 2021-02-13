@@ -149,3 +149,27 @@ $ docker run brainstation/sftp-client-s3 s3-to-server \
     -b my-bucket \
     -s3-key my-project/file-to-upload.txt
 ```
+
+## Parameters
+
+| Name  | server-to-s3  | s3-to-server  |
+| ---  | ---  | ---  |
+| -h, --host, --sftp-host              | :heavy_check_mark:  | :heavy_check_mark:  |
+| -p, --port, --sftp-port              | :heavy_check_mark:  | :heavy_check_mark:  |
+| -u, --user, --sftp-user, --username  | :heavy_check_mark:  | :heavy_check_mark:  |
+|     --private-key-s3-uri             | :heavy_check_mark:  | :heavy_check_mark:  |
+| -l, --location, --remote-location    | :heavy_check_mark:  | :heavy_check_mark:  |
+| -r, --remove, --rm, --delete         | :heavy_check_mark:  | :heavy_multiplication_x:  |
+|     --override                       | :heavy_multiplication_x:  | :heavy_check_mark:  |
+| -f, --filename, --filename-pattern   | :heavy_check_mark:  | :heavy_multiplication_x:  |
+| -b, --bucket, --bucket-name          | :heavy_check_mark:  | :heavy_check_mark:  |
+|     --s3-key                         | :heavy_multiplication_x:  | :heavy_check_mark:  |
+|     --key-prefix-pattern             | :heavy_check_mark:  | :heavy_multiplication_x:  |
+|     --timezone                       | :heavy_check_mark:  | :heavy_multiplication_x:  |
+|     --gunzip, --uncompress           | :heavy_check_mark:  | :heavy_multiplication_x:  |
+|     --gzip, --compress               | :heavy_multiplication_x:  | :heavy_check_mark:  |
+| -d, --decrypt                        | :heavy_check_mark:  | :heavy_multiplication_x:  |
+|     --gpg-private-key-s3-uri         | :heavy_check_mark:  | :heavy_multiplication_x:  |
+|     --gpg-passphrase, --gpg-password | :heavy_check_mark:  | :heavy_multiplication_x:  |
+| -e, --encrypt                        | :heavy_multiplication_x:  | :heavy_check_mark:  |
+|     --gpg-public-key-s3-uri          | :heavy_multiplication_x:  | :heavy_check_mark:  |
