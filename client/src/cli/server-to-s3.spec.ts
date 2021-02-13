@@ -40,36 +40,6 @@ describe('server-to-s3', () => {
         await expect(parseArgs('server-to-s3 --host sftphost --location /download/from/here -b test-bucket')).rejects
           .toThrow('Missing required arguments: user, private-key-s3-uri, key-prefix-pattern');
       });
-
-      describe('gpg key is required when decrypt is true in environment variable', () => {
-        beforeAll(() => {
-          process.env['SFTP_USER'] = 'test_user';
-          process.env['PRIVATE_KEY_S3_URI'] = 's3-uri';
-          process.env['KEY_PREFIX_PATTERN'] = 'upload/here';
-          process.env['DECRYPT'] = 'true';
-        });
-
-        afterAll(() => {
-          delete process.env['SFTP_USER'];
-          delete process.env['PRIVATE_KEY_S3_URI'];
-          delete process.env['KEY_PREFIX_PATTERN'];
-          delete process.env['DECRYPT'];
-        });
-
-        test('throws error', async () => {
-          await expect(parseArgs('server-to-s3 --host sftphost --location /download/from/here -b test-bucket')).rejects
-            .toThrow('Missing dependent arguments:\n decrypt -> gpg-private-key-s3-uri');
-        });
-      });
-
-      describe('gpg key is required when decrypt is flagged in command options', () => {
-        test('throws error', async () => {
-          await expect(parseArgs(
-            'server-to-s3 -h sftphost -u test_user -k something --key-prefix-pattern upload/here -d -l /download/from/here -b test-bucket'
-          )).rejects
-            .toThrow('Missing dependent arguments:\n decrypt -> gpg-private-key-s3-uri');
-        });
-      });
     });
 
     describe('required params are available', () => {
@@ -81,7 +51,6 @@ describe('server-to-s3', () => {
         process.env['SFTP_HOST'] = 'sftphost';
         process.env['SFTP_USER'] = 'test_user';
         process.env['KEY_PREFIX_PATTERN'] = '[upload/here]';
-        process.env['GPG_PRIVATE_KEY_S3_KEY'] = 'gpg-key-s3-uri';
 
         output = await parseArgs('server-to-s3 --port 22 --private-key-s3-uri s3-uri -r --location /download/from/here -b test-bucket');
       });
@@ -92,7 +61,6 @@ describe('server-to-s3', () => {
         delete process.env['SFTP_HOST'];
         delete process.env['SFTP_USER'];
         delete process.env['KEY_PREFIX_PATTERN'];
-        delete process.env['GPG_PRIVATE_KEY_S3_KEY'];
       });
 
       test('resolves successfully', () => {
@@ -109,9 +77,7 @@ describe('server-to-s3', () => {
           filename: undefined,
           bucket: 'test-bucket',
           keyPrefixPattern: '[upload/here]',
-          decrypt: false,
           rm: true,
-          gpgPrivateKey: 'secret-code',
         }));
       });
 
@@ -126,9 +92,7 @@ describe('server-to-s3', () => {
           filename: undefined,
           bucket: 'test-bucket',
           keyPrefixPattern: '[upload/here]',
-          decrypt: false,
           rm: true,
-          gpgPrivateKey: 'secret-code',
         }));
       });
     });

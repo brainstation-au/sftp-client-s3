@@ -6,7 +6,6 @@ import { ServerToS3Options } from '../types/server-to-s3-options';
 import * as download from './download-from-sftp-server';
 import * as list from './list-from-sftp-server';
 import * as storage from './local-storage-location';
-import * as openpgp from './openpgp';
 import * as remove from './remove-from-sftp-server';
 import { serverToS3 } from './server-to-s3';
 import * as upload from './upload-to-s3';
@@ -18,7 +17,6 @@ jest.mock('./list-from-sftp-server');
 jest.mock('./local-storage-location');
 jest.mock('./remove-from-sftp-server');
 jest.mock('./upload-to-s3');
-jest.mock('./openpgp');
 jest.mock('./gzip');
 const mockedFs = fs as jest.Mocked<typeof fs>;
 const mockedZlib = zlib as jest.Mocked<typeof zlib>;
@@ -26,7 +24,6 @@ const mockedDownload = download as jest.Mocked<typeof download>;
 const mockedList = list as jest.Mocked<typeof list>;
 const mockedRemove = remove as jest.Mocked<typeof remove>;
 const mockedUpload = upload as jest.Mocked<typeof upload>;
-const mockedPgp = openpgp as jest.Mocked<typeof openpgp>;
 const mockedStorage = storage as jest.Mocked<typeof storage>;
 const mockedGzip = gzip as jest.Mocked<typeof gzip>;
 
@@ -40,7 +37,6 @@ const resetAll = () => {
   mockedList.listFromSftpServer.mockReset();
   mockedRemove.removeFromSftpServer.mockReset();
   mockedUpload.uploadToS3.mockReset();
-  mockedPgp.decrypt.mockReset();
   mockedStorage.localStorageLocation.mockReset();
   mockedGzip.uncompress.mockReset();
 };
@@ -60,11 +56,10 @@ describe('serverToS3', () => {
     compression: 'uncompressed',
     files: ['foo.txt', 'bar.txt'],
   }].forEach(item => {
-    describe(`files are ${item.compression}, decrypt is false, rm is false`, () => {
+    describe(`files are ${item.compression}, rm is false`, () => {
       const options = {
         bucket: 'my-bucket',
         keyPrefixPattern: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
-        decrypt: false,
         location: '/outbox',
         timezone: 'UTC',
         rm: false,
@@ -116,141 +111,15 @@ describe('serverToS3', () => {
         expect(mockedZlib.gzipSync).not.toHaveBeenCalled();
         expect(mockedZlib.gunzipSync).not.toHaveBeenCalled();
         expect(mockedRemove.removeFromSftpServer).not.toHaveBeenCalled();
-        expect(mockedPgp.decrypt).not.toHaveBeenCalled();
         expect(mockedGzip.uncompress).not.toHaveBeenCalled();
       });
     });
   });
 
-  describe('decrypt is true, files are uncompressed, rm is false', () => {
-    const options = {
-      gpgPrivateKey: 'gpg-private-kye',
-      gpgPassphrase: 'password',
-      bucket: 'my-bucket',
-      keyPrefixPattern: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
-      decrypt: true,
-      location: '/outbox',
-      timezone: 'UTC',
-      rm: false,
-    };
-    const fileContent1 = 'encrypted-content-1';
-    const fileContent2 = 'encrypted-content-2';
-    const decContent1 = 'clear-text-content-1';
-    const decContent2 = 'clear-text-content-2';
-
-    beforeAll(async () => {
-      mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
-      mockedList.listFromSftpServer.mockResolvedValueOnce(['foo.txt', 'bar.txt']);
-      mockedFs.readFileSync.mockReturnValueOnce(Buffer.from(fileContent1));
-      mockedFs.readFileSync.mockReturnValueOnce(Buffer.from(fileContent2));
-      mockedPgp.decrypt.mockResolvedValueOnce(decContent1);
-      mockedPgp.decrypt.mockResolvedValueOnce(decContent2);
-      await serverToS3(options as ServerToS3Options);
-    });
-
-    afterAll(() => {
-      resetAll();
-    });
-
-    test('read file contents', () => {
-      expect(mockedFs.readFileSync).toHaveBeenCalledTimes(2);
-      expect(mockedFs.readFileSync).toHaveBeenCalledWith(path.join(localDir, 'foo.txt'));
-      expect(mockedFs.readFileSync).toHaveBeenCalledWith(path.join(localDir, 'bar.txt'));
-    });
-
-    test('file contents were decrypted', () => {
-      expect(mockedPgp.decrypt).toHaveBeenCalledTimes(2);
-      expect(mockedPgp.decrypt).toHaveBeenCalledWith(fileContent1, options.gpgPrivateKey, options.gpgPassphrase);
-      expect(mockedPgp.decrypt).toHaveBeenCalledWith(fileContent2, options.gpgPrivateKey, options.gpgPassphrase);
-    });
-
-    test('decrypted content were writted back to files', () => {
-      expect(mockedFs.writeFileSync).toHaveBeenCalledTimes(2);
-      expect(mockedFs.writeFileSync).toHaveBeenCalledWith(path.join(localDir, 'foo.txt'), Buffer.from(decContent1));
-      expect(mockedFs.writeFileSync).toHaveBeenCalledWith(path.join(localDir, 'bar.txt'), Buffer.from(decContent2));
-    });
-
-    test('did not call unexpected functions', () => {
-      expect(mockedZlib.gzipSync).not.toHaveBeenCalled();
-      expect(mockedZlib.gunzipSync).not.toHaveBeenCalled();
-      expect(mockedRemove.removeFromSftpServer).not.toHaveBeenCalled();
-      expect(mockedGzip.uncompress).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('decrypt is true, files are compressed, rm is false', () => {
-    const options = {
-      gpgPrivateKey: 'gpg-private-kye',
-      gpgPassphrase: 'password',
-      bucket: 'my-bucket',
-      keyPrefixPattern: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
-      decrypt: true,
-      location: '/outbox',
-      timezone: 'UTC',
-      rm: false,
-    };
-    const fileContent1 = 'encrypted-compressed-content-1';
-    const fileContent2 = 'encrypted-compressed-content-2';
-    const unzippedContent1 = 'encrypted-content-1';
-    const unzippedContent2 = 'encrypted-content-2';
-    const decContent1 = 'clear-text-content-1';
-    const decContent2 = 'clear-text-content-2';
-    const zippedContent1 = 'compressed-content-1';
-    const zippedContent2 = 'compressed-content-2';
-
-    beforeAll(async () => {
-      mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
-      mockedList.listFromSftpServer.mockResolvedValueOnce(['foo.txt.gz', 'bar.txt.gz']);
-      mockedFs.readFileSync.mockReturnValueOnce(Buffer.from(fileContent1));
-      mockedFs.readFileSync.mockReturnValueOnce(Buffer.from(fileContent2));
-      mockedZlib.gunzipSync.mockReturnValueOnce(Buffer.from(unzippedContent1));
-      mockedZlib.gunzipSync.mockReturnValueOnce(Buffer.from(unzippedContent2));
-      mockedPgp.decrypt.mockResolvedValueOnce(decContent1);
-      mockedPgp.decrypt.mockResolvedValueOnce(decContent2);
-      mockedZlib.gzipSync.mockReturnValueOnce(Buffer.from(zippedContent1));
-      mockedZlib.gzipSync.mockReturnValueOnce(Buffer.from(zippedContent2));
-      await serverToS3(options as ServerToS3Options);
-    });
-
-    afterAll(() => {
-      resetAll();
-    });
-
-    test('file contents were uncompressed', () => {
-      expect(mockedZlib.gunzipSync).toHaveBeenCalledTimes(2);
-      expect(mockedZlib.gunzipSync).toHaveBeenCalledWith(Buffer.from(fileContent1));
-      expect(mockedZlib.gunzipSync).toHaveBeenCalledWith(Buffer.from(fileContent2));
-    });
-
-    test('file contents were decrypted', () => {
-      expect(mockedPgp.decrypt).toHaveBeenCalledTimes(2);
-      expect(mockedPgp.decrypt).toHaveBeenCalledWith(unzippedContent1, options.gpgPrivateKey, options.gpgPassphrase);
-      expect(mockedPgp.decrypt).toHaveBeenCalledWith(unzippedContent2, options.gpgPrivateKey, options.gpgPassphrase);
-    });
-
-    test('decrypted content were compressed', () => {
-      expect(mockedZlib.gzipSync).toHaveBeenCalledTimes(2);
-      expect(mockedZlib.gzipSync).toHaveBeenCalledWith(Buffer.from(decContent1));
-      expect(mockedZlib.gzipSync).toHaveBeenCalledWith(Buffer.from(decContent2));
-    });
-
-    test('decrypted compressed content were writted back to files', () => {
-      expect(mockedFs.writeFileSync).toHaveBeenCalledTimes(2);
-      expect(mockedFs.writeFileSync).toHaveBeenCalledWith(path.join(localDir, 'foo.txt.gz'), Buffer.from(zippedContent1));
-      expect(mockedFs.writeFileSync).toHaveBeenCalledWith(path.join(localDir, 'bar.txt.gz'), Buffer.from(zippedContent2));
-    });
-
-    test('did not call unexpected functions', () => {
-      expect(mockedRemove.removeFromSftpServer).not.toHaveBeenCalled();
-      expect(mockedGzip.uncompress).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('rm is true, files are uncompressed, decrypt is false', () => {
+  describe('rm is true, files are uncompressed', () => {
     const options = {
       bucket: 'my-bucket',
       keyPrefixPattern: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
-      decrypt: false,
       location: '/outbox',
       timezone: 'UTC',
       rm: true,
@@ -277,16 +146,14 @@ describe('serverToS3', () => {
       expect(mockedFs.writeFileSync).not.toHaveBeenCalled();
       expect(mockedZlib.gzipSync).not.toHaveBeenCalled();
       expect(mockedZlib.gunzipSync).not.toHaveBeenCalled();
-      expect(mockedPgp.decrypt).not.toHaveBeenCalled();
       expect(mockedGzip.uncompress).not.toHaveBeenCalled();
     });
   });
 
-  describe('gunzip is true, rm is false, files are uncompressed, decrypt is false', () => {
+  describe('gunzip is true, rm is false, files are uncompressed', () => {
     const options = {
       bucket: 'my-bucket',
       keyPrefixPattern: '[my-project/foo/year=]YYYY/[month=]MM/[day=]DD/',
-      decrypt: false,
       location: '/outbox',
       timezone: 'UTC',
       rm: false,
@@ -331,7 +198,6 @@ describe('serverToS3', () => {
       expect(mockedFs.writeFileSync).not.toHaveBeenCalled();
       expect(mockedZlib.gzipSync).not.toHaveBeenCalled();
       expect(mockedZlib.gunzipSync).not.toHaveBeenCalled();
-      expect(mockedPgp.decrypt).not.toHaveBeenCalled();
     });
   });
 });

@@ -80,19 +80,6 @@ export const builder = (yargs: Argv<unknown>): Argv<Partial<S3ToServerArguments>
     default: process.env['COMPRESS'] === 'true' || false,
     description: 'Compress file content if not already compressed',
     type: 'boolean',
-  })
-  .option('encrypt', {
-    alias: ['e'],
-    default: process.env['ENCRYPT'] === 'true' || false,
-    description: 'Encrypt file content with GPG public key',
-    type: 'boolean',
-    implies: ['gpg-public-key-s3-uri'],
-  })
-  .option('gpg-public-key-s3-uri', {
-    default: process.env['GPG_PUBLIC_KEY_S3_URI'],
-    description: 'S3 URI of the GPG public key to encrypt file content',
-    nargs: 1,
-    type: 'string',
   });
 
 const downloadPrivateKey: MiddlewareFunction<Partial<S3ToServerArguments>> = async (argv) => {
@@ -100,14 +87,8 @@ const downloadPrivateKey: MiddlewareFunction<Partial<S3ToServerArguments>> = asy
   return {...argv, privateKey};
 };
 
-const downloadGpgPublicKey: MiddlewareFunction<Partial<S3ToServerArguments>> = async (argv) => {
-  const gpgPublicKey = argv.gpgPublicKeyS3Uri && await getS3ObjectContent(argv.gpgPublicKeyS3Uri);
-  return {...argv, gpgPublicKey};
-};
-
 export const middlewares = [
   downloadPrivateKey,
-  downloadGpgPublicKey,
 ];
 
 export const handler = async (argv: Arguments<Partial<S3ToServerArguments>>): Promise<void> => {

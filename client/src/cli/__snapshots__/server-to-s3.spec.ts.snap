@@ -31,15 +31,8 @@ Options:
       --timezone                            Name of the timezone to translate
                                             key-prefix-pattern
                                                        [string] [default: \\"UTC\\"]
-  -d, --decrypt                             Decrypt file content with GPG
-                                            private key
-                                                      [boolean] [default: false]
       --gunzip, --uncompress                Uncompress file content if
-                                            compressed[boolean] [default: false]
-      --gpg-private-key-s3-uri              S3 URI of the GPG private key to
-                                            decrypt file content        [string]
-      --gpg-passphrase, --gpg-password      Passphrase to decrypt GPG private
-                                            key                         [string]"
+                                            compressed[boolean] [default: false]"
 `;
 
 exports[`server-to-s3 help basic help output on parent 1`] = `

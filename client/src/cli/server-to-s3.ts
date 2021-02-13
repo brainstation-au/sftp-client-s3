@@ -91,31 +91,11 @@ export const builder = (yargs: Argv<unknown>): Argv<Partial<ServerToS3Arguments>
     requiresArg: true,
     type: 'string',
   })
-  .option('decrypt', {
-    alias: ['d'],
-    default: process.env['DECRYPT'] === 'true' || false,
-    description: 'Decrypt file content with GPG private key',
-    type: 'boolean',
-    implies: ['gpg-private-key-s3-uri'],
-  })
   .option('gunzip', {
     alias: ['uncompress'],
     default: process.env['UNCOMPRESS'] === 'true' || false,
     description: 'Uncompress file content if compressed',
     type: 'boolean',
-  })
-  .option('gpg-private-key-s3-uri', {
-    default: process.env['GPG_PRIVATE_KEY_S3_KEY'],
-    description: 'S3 URI of the GPG private key to decrypt file content',
-    nargs: 1,
-    type: 'string',
-  })
-  .option('gpg-passphrase', {
-    alias: ['gpg-password'],
-    default: process.env['GPG_PASSPHRASE'],
-    description: 'Passphrase to decrypt GPG private key',
-    nargs: 1,
-    type: 'string',
   });
 
 const downloadPrivateKey: MiddlewareFunction<Partial<ServerToS3Arguments>> = async (argv) => {
@@ -123,14 +103,8 @@ const downloadPrivateKey: MiddlewareFunction<Partial<ServerToS3Arguments>> = asy
   return {...argv, privateKey};
 };
 
-const downloadGpgPrivateKey: MiddlewareFunction<Partial<ServerToS3Arguments>> = async (argv) => {
-  const gpgPrivateKey = argv.gpgPrivateKeyS3Uri && await getS3ObjectContent(argv.gpgPrivateKeyS3Uri);
-  return {...argv, gpgPrivateKey};
-};
-
 export const middlewares = [
   downloadPrivateKey,
-  downloadGpgPrivateKey,
 ];
 
 export const handler = async (argv: Arguments<Partial<ServerToS3Arguments>>): Promise<void> => {

@@ -10,7 +10,6 @@ describe('ServerToS3Options', () => {
     filename: '_foo.txt',
     bucket: 'my-bucket',
     keyPrefixPattern: '[my-project/foo/bar/year=]YYYY/',
-    decrypt: false,
   };
 
   test('options with valid timezone', () => {

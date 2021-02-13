@@ -40,38 +40,6 @@ describe('s3-to-server', () => {
         await expect(parseArgs('s3-to-server --host sftphost --location /download/from/here -b test-bucket')).rejects
           .toThrow('Missing required arguments: user, private-key-s3-uri, s3-key');
       });
-
-      describe('gpg key is required when encrypt is true in environment variable', () => {
-        beforeAll(() => {
-          process.env['SFTP_USER'] = 'test_user';
-          process.env['PRIVATE_KEY_S3_URI'] = 's3-uri';
-          process.env['S3_KEY'] = 'foo/bar.txt';
-          process.env['ENCRYPT'] = 'true';
-          mockedS3Content.getS3ObjectContent.mockResolvedValueOnce('');
-        });
-
-        afterAll(() => {
-          delete process.env['SFTP_USER'];
-          delete process.env['PRIVATE_KEY_S3_URI'];
-          delete process.env['S3_KEY'];
-          delete process.env['ENCRYPT'];
-          mockedS3Content.getS3ObjectContent.mockReset();
-        });
-
-        test('throws error', async () => {
-          await expect(parseArgs('s3-to-server --host sftphost --location /download/from/here -b test-bucket')).rejects
-            .toThrow('Missing dependent arguments:\n encrypt -> gpg-public-key-s3-uri');
-        });
-      });
-
-      describe('gpg key is required when encrypt is flagged in command options', () => {
-        test('throws error', async () => {
-          await expect(parseArgs(
-            's3-to-server -h sftphost -u test_user -k something --s3-key foo/bar.txt -e -l /download/from/here -b test-bucket'
-          )).rejects
-            .toThrow('Missing dependent arguments:\n encrypt -> gpg-public-key-s3-uri');
-        });
-      });
     });
 
     describe('required params are available', () => {
@@ -82,7 +50,6 @@ describe('s3-to-server', () => {
         process.env['SFTP_HOST'] = 'sftphost';
         process.env['SFTP_USER'] = 'test_user';
         process.env['S3_KEY'] = 'upload/here/filename.txt';
-        process.env['GPG_PUBLIC_KEY_S3_URI'] = 'gpg-key-s3-uri';
 
         output = await parseArgs(
           's3-to-server --port 22 --private-key-s3-uri s3-uri --location /download/from/here -b test-bucket --gzip'
@@ -95,7 +62,6 @@ describe('s3-to-server', () => {
         delete process.env['SFTP_HOST'];
         delete process.env['SFTP_USER'];
         delete process.env['S3_KEY'];
-        delete process.env['GPG_PUBLIC_KEY_S3_URI'];
       });
 
       test('resolves successfully', () => {
@@ -111,8 +77,6 @@ describe('s3-to-server', () => {
           location: '/download/from/here',
           bucket: 'test-bucket',
           s3Key: 'upload/here/filename.txt',
-          encrypt: false,
-          gpgPublicKey: 'secret-code',
           gzip: true,
           override: false,
         }));
@@ -128,8 +92,6 @@ describe('s3-to-server', () => {
           location: '/download/from/here',
           bucket: 'test-bucket',
           s3Key: 'upload/here/filename.txt',
-          encrypt: false,
-          gpgPublicKey: 'secret-code',
           gzip: true,
           override: false,
         }));
