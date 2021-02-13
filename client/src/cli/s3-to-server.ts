@@ -3,14 +3,14 @@ import { container } from '../inversify/config';
 import { S3_TO_SERVER_OPTIONS } from '../inversify/constants';
 import { getS3ObjectContent } from '../services/get-s3-object-content';
 import { s3ToServer } from '../services/s3-to-server';
+import { S3ToServer } from '../types/commands';
 import { S3ToServerOptions } from '../types/s3-to-server-options';
-import { Arguments as S3ToServerArguments } from './s3-to-server-arguments';
 
-export const command = 's3-to-server';
+export const command = S3ToServer;
 
 export const description = 'Get a file from S3 and upload that on the SFTP server';
 
-export const builder = (yargs: Argv<unknown>): Argv<Partial<S3ToServerArguments>> => yargs
+export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
   .option('host', {
     alias: ['sftp-host', 'h'],
     default: process.env['SFTP_HOST'],
@@ -90,8 +90,8 @@ export const builder = (yargs: Argv<unknown>): Argv<Partial<S3ToServerArguments>
     type: 'boolean',
   });
 
-const downloadPrivateKey: MiddlewareFunction<Partial<S3ToServerArguments>> = async (argv) => {
-  const privateKey = argv.privateKeyS3Uri && await getS3ObjectContent(argv.privateKeyS3Uri);
+const downloadPrivateKey: MiddlewareFunction<unknown> = async (argv) => {
+  const privateKey = typeof argv.privateKeyS3Uri === 'string' && await getS3ObjectContent(argv.privateKeyS3Uri);
   return {...argv, privateKey};
 };
 
@@ -99,7 +99,7 @@ export const middlewares = [
   downloadPrivateKey,
 ];
 
-export const handler = async (argv: Arguments<Partial<S3ToServerArguments>>): Promise<void> => {
+export const handler = async (argv: Arguments<unknown>): Promise<void> => {
   const options = S3ToServerOptions.check(argv);
   container.bind<S3ToServerOptions>(S3_TO_SERVER_OPTIONS).toConstantValue(options);
   return s3ToServer(options);
