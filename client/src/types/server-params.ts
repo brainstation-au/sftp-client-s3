@@ -1,4 +1,4 @@
-import { Record, Static, String, Number, Undefined, Partial } from 'runtypes';
+import { Boolean, Number, Record, Static, String, Undefined } from 'runtypes';
 
 export const ServerParams = Record({
   host: String,
@@ -6,10 +6,9 @@ export const ServerParams = Record({
   username: String,
   privateKey: String,
   location: String,
-})
-  .And(Partial({
-    filename: String.Or(Undefined),
-  }));
+  filename: String.Or(Undefined),
+  rm: Boolean,
+});
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export type ServerParams = Static<typeof ServerParams>;
