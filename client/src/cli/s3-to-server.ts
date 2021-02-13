@@ -53,6 +53,13 @@ export const builder = (yargs: Argv<unknown>): Argv<Partial<S3ToServerArguments>
     requiresArg: true,
     type: 'string',
   })
+  .option('filename', {
+    alias: ['f'],
+    default: process.env['FILENAME'],
+    description: 'Expected name of the file in SFTP server',
+    nargs: 1,
+    type: 'string',
+  })
   .option('bucket', {
     alias: ['bucket-name', 'b'],
     default: process.env['BUCKET_NAME'],

@@ -50,6 +50,7 @@ describe('s3-to-server', () => {
         process.env['SFTP_HOST'] = 'sftphost';
         process.env['SFTP_USER'] = 'test_user';
         process.env['S3_KEY'] = 'upload/here/filename.txt';
+        process.env['FILENAME'] = 'something.txt';
 
         output = await parseArgs(
           's3-to-server --port 22 --private-key-s3-uri s3-uri --location /download/from/here -b test-bucket --gzip'
@@ -62,6 +63,7 @@ describe('s3-to-server', () => {
         delete process.env['SFTP_HOST'];
         delete process.env['SFTP_USER'];
         delete process.env['S3_KEY'];
+        delete process.env['FILENAME'];
       });
 
       test('resolves successfully', () => {
@@ -79,6 +81,7 @@ describe('s3-to-server', () => {
           s3Key: 'upload/here/filename.txt',
           gzip: true,
           rm: false,
+          filename: 'something.txt',
         }));
       });
 
@@ -94,6 +97,7 @@ describe('s3-to-server', () => {
           s3Key: 'upload/here/filename.txt',
           gzip: true,
           rm: false,
+          filename: 'something.txt',
         }));
       });
     });

@@ -18,6 +18,8 @@ Options:
                                                              [string] [required]
   -l, --location, --remote-location    Path to the file location in SFTP server
                                                              [string] [required]
+  -f, --filename                       Expected name of the file in SFTP server
+                                                                        [string]
   -b, --bucket, --bucket-name          S3 bucket name        [string] [required]
       --s3-key                         S3 key for the file to upload
                                                              [string] [required]
