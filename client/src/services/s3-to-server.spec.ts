@@ -137,12 +137,12 @@ describe('s3ToServer', () => {
     });
   });
 
-  describe('override is true, all other branches are false', () => {
+  describe('rm is true, all other branches are false', () => {
     const options = {
       bucket: 'my-bucket',
       s3Key: 'my-project/foo/' + 'bar.txt',
       gzip: false,
-      override: true,
+      rm: true,
       location: '/foo'
     };
     const localDir = '/tmp/something/';

@@ -26,7 +26,7 @@ export const s3ToServer = async (options: S3ToServerOptions): Promise<void> => {
     fs.unlinkSync(localPath);
   }
 
-  if (options.override) {
+  if (options.rm) {
     // TODO: create a function for remotePath.
     const remoteFile = remoteFilename(uploadPath, options.filename);
     const alreadyExists = await existsInSftpServer(options, remoteFile);

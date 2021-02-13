@@ -4,7 +4,7 @@ import { ServerParams } from './server-params';
 export const S3ToServerOptions = Record({
   bucket: String,
   s3Key: String,
-  override: Boolean,
+  rm: Boolean,
 })
   .And(ServerParams)
   .And(Partial({

@@ -78,7 +78,7 @@ describe('s3-to-server', () => {
           bucket: 'test-bucket',
           s3Key: 'upload/here/filename.txt',
           gzip: true,
-          override: false,
+          rm: false,
         }));
       });
 
@@ -93,7 +93,7 @@ describe('s3-to-server', () => {
           bucket: 'test-bucket',
           s3Key: 'upload/here/filename.txt',
           gzip: true,
-          override: false,
+          rm: false,
         }));
       });
     });

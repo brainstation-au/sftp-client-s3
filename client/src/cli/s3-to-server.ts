@@ -70,9 +70,10 @@ export const builder = (yargs: Argv<unknown>): Argv<Partial<S3ToServerArguments>
     requiresArg: true,
     type: 'string',
   })
-  .option('override', {
-    default: process.env['OVERRIDE'] === 'true' || false,
-    description: 'Override a file in SFTP server if already exists',
+  .option('remove', {
+    alias: ['rm', 'r', 'delete'],
+    default: process.env['DELETE_REMOTE'] === 'true' || false,
+    description: 'Delete remote file (if exists) before upload from S3',
     type: 'boolean',
   })
   .option('gzip', {

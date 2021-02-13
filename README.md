@@ -75,8 +75,8 @@ Options:
   -b, --bucket, --bucket-name          S3 bucket name        [string] [required]
       --s3-key                         S3 key for the file to upload
                                                              [string] [required]
-      --override                       Override a file in SFTP server if already
-                                       exists         [boolean] [default: false]
+  -r, --remove, --rm, --delete         Delete remote file (if exists) before
+                                       upload from S3 [boolean] [default: false]
       --gzip, --compress               Compress file content if the filename
                                        does not have a `.gz` extension
                                                       [boolean] [default: false]
@@ -94,7 +94,8 @@ Options:
 | BUCKET_NAME  | S3 bucket name  |
 | S3_KEY  | S3 key for the file to upload  |
 | KEY_PREFIX  | S3 key prefix, original filename from the server will get appended  |
-| OVERRIDE  | Override a file in SFTP server if already exists  |
+| DELETE_REMOTE  | s3-to-server: Delete remote file (if exists) before upload from S3  |
+| DELETE_REMOTE  | server-to-s3: Delete remote files after successfull upload to S3  |
 | COMPRESS  | Compress file content if the filename does not have a `.gz` extension  |
 | UNCOMPRESS  | Uncompress file content if the file has a `.gz` extension  |
 
@@ -135,8 +136,7 @@ $ docker run brainstation/sftp-client-s3 s3-to-server \
 | -u, --user, --sftp-user, --username  | :heavy_check_mark:  | :heavy_check_mark:  |
 |     --private-key-s3-uri             | :heavy_check_mark:  | :heavy_check_mark:  |
 | -l, --location, --remote-location    | :heavy_check_mark:  | :heavy_check_mark:  |
-| -r, --remove, --rm, --delete         | :heavy_check_mark:  | :heavy_multiplication_x:  |
-|     --override                       | :heavy_multiplication_x:  | :heavy_check_mark:  |
+| -r, --remove, --rm, --delete         | :heavy_check_mark:  | :heavy_check_mark:  |
 | -f, --filename, --filename-pattern   | :heavy_check_mark:  | :heavy_multiplication_x:  |
 | -b, --bucket, --bucket-name          | :heavy_check_mark:  | :heavy_check_mark:  |
 |     --s3-key                         | :heavy_multiplication_x:  | :heavy_check_mark:  |
