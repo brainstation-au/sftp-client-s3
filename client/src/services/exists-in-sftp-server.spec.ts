@@ -26,7 +26,6 @@ describe('existsInSftpServer', () => {
         privateKey: fs.readFileSync('/opt/.ssh/id_rsa', 'utf-8'),
         location: remoteLocation,
         filename: undefined,
-        rm: false,
       }, filename)).resolves.toEqual(true);
     });
   });
@@ -43,7 +42,6 @@ describe('existsInSftpServer', () => {
         privateKey: fs.readFileSync('/opt/.ssh/id_rsa', 'utf-8'),
         location: remoteLocation,
         filename: undefined,
-        rm: false,
       }, filename)).resolves.toEqual(false);
     });
   });

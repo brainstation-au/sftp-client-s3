@@ -1,1 +1,1 @@
-export const COMMAND_OPTIONS = Symbol.for('command-options');
+export const SERVER_PARAMS = Symbol.for('server-params');

@@ -5,6 +5,7 @@ export const ServerToS3Options = Record({
   bucket: String,
   keyPrefix: String,
   gunzip: Boolean,
+  rm: Boolean,
 })
   .And(ServerParams);
 

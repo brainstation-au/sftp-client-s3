@@ -29,7 +29,6 @@ describe('listFromSftpServer', () => {
       privateKey: fs.readFileSync('/opt/.ssh/id_rsa', 'utf-8'),
       location: remoteLocation,
       filename: undefined,
-      rm: false,
     })).resolves.toEqual(expect.arrayContaining(allFilename));
   });
 
@@ -41,7 +40,6 @@ describe('listFromSftpServer', () => {
       privateKey: fs.readFileSync('/opt/.ssh/id_rsa', 'utf-8'),
       location: remoteLocation,
       filename: '*.txt',
-      rm: false,
     })).resolves.toEqual(expect.arrayContaining(randonFilename));
   });
 
@@ -53,7 +51,6 @@ describe('listFromSftpServer', () => {
       privateKey: fs.readFileSync('/opt/.ssh/id_rsa', 'utf-8'),
       location: remoteLocation,
       filename: '^\\d{14}_.*\.txt$',
-      rm: false,
     })).resolves.toEqual(expect.arrayContaining([
       '20201221183000_foo.txt',
       '20201222183000_bar.txt',

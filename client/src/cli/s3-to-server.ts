@@ -1,10 +1,11 @@
 import { Arguments, Argv, MiddlewareFunction } from 'yargs';
 import { container } from '../inversify/config';
-import { COMMAND_OPTIONS } from '../inversify/constants';
+import { SERVER_PARAMS } from '../inversify/constants';
 import { getS3ObjectContent } from '../services/get-s3-object-content';
 import { s3ToServer } from '../services/s3-to-server';
 import { S3ToServer } from '../types/commands';
 import { S3ToServerOptions } from '../types/s3-to-server-options';
+import { ServerParams } from '../types/server-params';
 
 export const command = S3ToServer;
 
@@ -101,6 +102,7 @@ export const middlewares = [
 
 export const handler = async (argv: Arguments<unknown>): Promise<void> => {
   const options = S3ToServerOptions.check(argv);
-  container.bind<S3ToServerOptions>(COMMAND_OPTIONS).toConstantValue(options);
+  const { host, port, username, privateKey, location, filename } = options;
+  container.bind<ServerParams>(SERVER_PARAMS).toConstantValue({ host, port, username, privateKey, location, filename });
   return s3ToServer(options);
 };

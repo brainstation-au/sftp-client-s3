@@ -29,7 +29,6 @@ describe('uploadToSftpServer', () => {
         privateKey: fs.readFileSync('/opt/.ssh/id_rsa', 'utf-8'),
         location: contentPath,
         filename: undefined,
-        rm: false,
       }, localPath);
     });
 
