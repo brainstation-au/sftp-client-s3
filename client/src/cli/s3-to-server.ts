@@ -91,7 +91,7 @@ export const builder = (yargs: Argv<unknown>): Argv<unknown> => yargs
   });
 
 const downloadPrivateKey: MiddlewareFunction<unknown> = async (argv) => {
-  const privateKey = typeof argv.privateKeyS3Uri === 'string' && await getS3ObjectContent(argv.privateKeyS3Uri);
+  const privateKey = typeof argv.privateKeyS3Uri === 'string' ? await getS3ObjectContent(argv.privateKeyS3Uri) : null;
   return {...argv, privateKey};
 };
 
