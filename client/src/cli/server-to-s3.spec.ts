@@ -81,15 +81,10 @@ describe('server-to-s3', () => {
       test('calls handler with arguments', async () => {
         expect(mockedHandler.serverToS3).toHaveBeenCalledTimes(1);
         expect(mockedHandler.serverToS3).toHaveBeenCalledWith(expect.objectContaining({
-          host: 'sftphost',
-          port: 22,
-          user: 'test_user',
-          privateKey: 'secret-code',
-          location: '/download/from/here',
-          filename: undefined,
           bucket: 'test-bucket',
           keyPrefix: 'upload/here',
           rm: true,
+          gunzip: false,
         }));
       });
     });

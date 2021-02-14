@@ -1,16 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { container } from '../inversify/config';
 import { S3ToServerOptions } from '../types/s3-to-server-options';
 import { downloadFromS3 } from './download-from-s3';
-import { localStorageLocation } from './local-storage-location';
-import { uploadToSftpServer } from './upload-to-sftp-server';
 import { compress } from './gzip';
-import { existsInSftpServer } from './exists-in-sftp-server';
-import { removeFromSftpServer } from './remove-from-sftp-server';
-import { remoteFilename } from './remote-filename';
+import { localStorageLocation } from './local-storage-location';
+import { SftpService } from './sftp';
 
-export const s3ToServer = async (options: S3ToServerOptions): Promise<void> => {
-  const { bucket, s3Key } = options;
+export const s3ToServer = async ({bucket, s3Key, gzip, rm}: S3ToServerOptions): Promise<void> => {
+  const sftp = container.get<SftpService>(SftpService);
   const filename = path.basename(s3Key);
   const isGzipped = path.extname(filename).toLowerCase() === '.gz';
   const localDir = localStorageLocation();
@@ -20,22 +18,21 @@ export const s3ToServer = async (options: S3ToServerOptions): Promise<void> => {
   console.log(`s3://${bucket}/${s3Key} has been downloaded as ${localPath}`);
 
   let uploadPath = localPath;
-  if (!isGzipped && options.gzip) {
+  if (!isGzipped && gzip) {
     uploadPath = localPath + '.gz';
     await compress(localPath, uploadPath);
     fs.unlinkSync(localPath);
   }
 
-  if (options.rm) {
-    // TODO: create a function for remotePath.
-    const remoteFile = remoteFilename(uploadPath, options.filename);
-    const alreadyExists = await existsInSftpServer(options, remoteFile);
+  if (rm) {
+    const remoteName = path.basename(uploadPath);
+    const alreadyExists = await sftp.exists(remoteName);
     if (alreadyExists) {
-      await removeFromSftpServer(options, remoteFile);
+      await sftp.delete(remoteName);
     }
   }
 
-  const uploadResponse = await uploadToSftpServer(options, uploadPath);
+  const uploadResponse = await sftp.upload(uploadPath);
   console.log(uploadResponse);
   fs.unlinkSync(uploadPath);
 };

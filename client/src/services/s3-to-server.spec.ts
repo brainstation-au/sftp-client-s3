@@ -1,29 +1,22 @@
 import * as fs from 'fs';
 import * as zlib from 'zlib';
-import { S3ToServerOptions } from '../types/s3-to-server-options';
+import { container } from '../inversify/config';
 import * as download from './download-from-s3';
-import * as storage from './local-storage-location';
 import * as gzip from './gzip';
+import * as storage from './local-storage-location';
 import { s3ToServer } from './s3-to-server';
-import * as upload from './upload-to-sftp-server';
-import * as exists from './exists-in-sftp-server';
-import * as remove from './remove-from-sftp-server';
+import { SftpService } from './sftp';
+import * as sftpMock from './sftp.mock';
 jest.mock('fs');
 jest.mock('zlib');
-jest.mock('./upload-to-sftp-server');
 jest.mock('./download-from-s3');
 jest.mock('./local-storage-location');
 jest.mock('./gzip');
-jest.mock('./exists-in-sftp-server');
-jest.mock('./remove-from-sftp-server');
 const mockedFs = fs as jest.Mocked<typeof fs>;
 const mockedZlib = zlib as jest.Mocked<typeof zlib>;
 const mockedDownload = download as jest.Mocked<typeof download>;
-const mockedUpload = upload as jest.Mocked<typeof upload>;
 const mockedStorage = storage as jest.Mocked<typeof storage>;
 const mockedGzip = gzip as jest.Mocked<typeof gzip>;
-const mockedExists = exists as jest.Mocked<typeof exists>;
-const mockedRemove = remove as jest.Mocked<typeof remove>;
 
 const resetAll = () => {
   mockedFs.readFileSync.mockReset();
@@ -32,14 +25,19 @@ const resetAll = () => {
   mockedZlib.gzipSync.mockReset();
   mockedZlib.gunzipSync.mockReset();
   mockedDownload.downloadFromS3.mockReset();
-  mockedUpload.uploadToSftpServer.mockReset();
   mockedStorage.localStorageLocation.mockReset();
   mockedGzip.compress.mockReset();
-  mockedExists.existsInSftpServer.mockReset();
-  mockedRemove.removeFromSftpServer.mockReset();
 };
 
 describe('s3ToServer', () => {
+  beforeAll(() => {
+    container.bind(SftpService).toConstantValue(new sftpMock.SftpServiceMock());
+  });
+
+  afterAll(() => {
+    container.unbind(SftpService);
+  });
+
   [{
     compression: 'compressed',
     filename: 'bar.txt.gz',
@@ -47,21 +45,24 @@ describe('s3ToServer', () => {
     compression: 'uncompressed',
     filename: 'bar.txt',
   }].forEach(item => {
-    describe(`file is ${item.compression}, enctrypt is false, gzip is not set`, () => {
+    describe(`file is ${item.compression}, gzip is not set`, () => {
       const options = {
         bucket: 'my-bucket',
         s3Key: 'my-project/foo/' + item.filename,
+        gzip: false,
+        rm: false,
       };
       const localDir = '/tmp/something/';
       const localPath = localDir + item.filename;
 
       beforeAll(async () => {
         mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
-        await s3ToServer(options as S3ToServerOptions);
+        await s3ToServer(options);
       });
 
       afterAll(() => {
         resetAll();
+        sftpMock.resetSftpServiceMock();
       });
 
       test('generate local storage path once', () => {
@@ -78,9 +79,8 @@ describe('s3ToServer', () => {
       });
 
       test('upload file to sftp server', () => {
-        expect(mockedUpload.uploadToSftpServer).toHaveBeenCalledTimes(1);
-        expect(mockedUpload.uploadToSftpServer).toHaveBeenCalledWith(
-          options,
+        expect(sftpMock.uploadFn).toHaveBeenCalledTimes(1);
+        expect(sftpMock.uploadFn).toHaveBeenCalledWith(
           localPath,
         );
       });
@@ -105,17 +105,19 @@ describe('s3ToServer', () => {
       bucket: 'my-bucket',
       s3Key: 'my-project/foo/' + 'bar.txt',
       gzip: true,
+      rm: false,
     };
     const localDir = '/tmp/something/';
     const localPath = localDir + 'bar.txt';
 
     beforeAll(async () => {
       mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
-      await s3ToServer(options as S3ToServerOptions);
+      await s3ToServer(options);
     });
 
     afterAll(() => {
       resetAll();
+      sftpMock.resetSftpServiceMock();
     });
 
     test('compress was called with filepaths', () => {
@@ -143,45 +145,46 @@ describe('s3ToServer', () => {
       s3Key: 'my-project/foo/' + 'bar.txt',
       gzip: false,
       rm: true,
-      location: '/foo'
     };
     const localDir = '/tmp/something/';
 
     describe('when a file does not exit', () => {
       beforeAll(async () => {
+        sftpMock.existsFn.mockResolvedValueOnce(false);
         mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
-        mockedExists.existsInSftpServer.mockResolvedValueOnce(false);
-        await s3ToServer(options as S3ToServerOptions);
+        await s3ToServer(options);
       });
 
       afterAll(() => {
         resetAll();
+        sftpMock.resetSftpServiceMock();
       });
 
       test('file existance was checked', () => {
-        expect(mockedExists.existsInSftpServer).toHaveBeenCalledTimes(1);
-        expect(mockedExists.existsInSftpServer).toHaveBeenCalledWith(options, 'bar.txt');
+        expect(sftpMock.existsFn).toHaveBeenCalledTimes(1);
+        expect(sftpMock.existsFn).toHaveBeenCalledWith('bar.txt');
       });
 
       test('no attempt to remove a file', () => {
-        expect(mockedRemove.removeFromSftpServer).not.toHaveBeenCalled();
+        expect(sftpMock.deleteFn).not.toHaveBeenCalled();
       });
     });
 
     describe('when a file exits', () => {
       beforeAll(async () => {
         mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
-        mockedExists.existsInSftpServer.mockResolvedValueOnce(true);
-        await s3ToServer(options as S3ToServerOptions);
+        sftpMock.existsFn.mockResolvedValueOnce(true);
+        await s3ToServer(options);
       });
 
       afterAll(() => {
         resetAll();
+        sftpMock.resetSftpServiceMock();
       });
 
       test('no attempt to remove a file', () => {
-        expect(mockedRemove.removeFromSftpServer).toHaveBeenCalledTimes(1);
-        expect(mockedRemove.removeFromSftpServer).toHaveBeenCalledWith(options, 'bar.txt');
+        expect(sftpMock.deleteFn).toHaveBeenCalledTimes(1);
+        expect(sftpMock.deleteFn).toHaveBeenCalledWith('bar.txt');
       });
     });
   });

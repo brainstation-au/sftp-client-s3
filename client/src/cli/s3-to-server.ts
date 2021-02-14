@@ -3,11 +3,10 @@ import { container } from '../inversify/config';
 import { SERVER_PARAMS } from '../inversify/constants';
 import { getS3ObjectContent } from '../services/get-s3-object-content';
 import { s3ToServer } from '../services/s3-to-server';
-import { S3ToServer } from '../types/commands';
 import { S3ToServerOptions } from '../types/s3-to-server-options';
 import { ServerParams } from '../types/server-params';
 
-export const command = S3ToServer;
+export const command = 's3-to-server';
 
 export const description = 'Get a file from S3 and upload that on the SFTP server';
 
@@ -101,8 +100,9 @@ export const middlewares = [
 ];
 
 export const handler = async (argv: Arguments<unknown>): Promise<void> => {
-  const options = S3ToServerOptions.check(argv);
-  const { host, port, username, privateKey, location, filename } = options;
+  const { host, port, username, privateKey, location, filename } = ServerParams.check(argv);
   container.bind<ServerParams>(SERVER_PARAMS).toConstantValue({ host, port, username, privateKey, location, filename });
-  return s3ToServer(options);
+
+  const { bucket, s3Key, gzip, rm } = S3ToServerOptions.check(argv);
+  return s3ToServer({ bucket, s3Key, gzip, rm });
 };

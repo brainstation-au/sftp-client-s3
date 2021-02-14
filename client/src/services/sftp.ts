@@ -5,15 +5,6 @@ import { SERVER_PARAMS } from '../inversify/constants';
 import { ServerParams } from '../types/server-params';
 import { remoteFilename } from './remote-filename';
 
-export const execute = async <T>(options: Client.ConnectOptions, callback: (c: Client) => Promise<T>): Promise<T> => {
-  const sftp = new Client();
-
-  return sftp.connect(options)
-    .then(() => callback(sftp)
-      .finally(() => sftp.end())
-    );
-};
-
 @injectable()
 export class SftpService {
   protected location: string;
@@ -35,8 +26,9 @@ export class SftpService {
   }
 
   public async exists (filename: string): Promise<boolean> {
+    const remoteName = remoteFilename(filename, this.filename);
     return this.execute(async (client: Client): Promise<boolean> => {
-      return client.exists(path.join(this.location, filename)).then(res => !!res);
+      return client.exists(path.join(this.location, remoteName)).then(res => !!res);
     });
   }
 

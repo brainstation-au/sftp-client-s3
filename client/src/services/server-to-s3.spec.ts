@@ -1,27 +1,20 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as zlib from 'zlib';
-import { ServerToS3Options } from '../types/server-to-s3-options';
-import * as download from './download-from-sftp-server';
+import { container } from '../inversify/config';
 import * as gzip from './gzip';
-import * as list from './list-from-sftp-server';
 import * as storage from './local-storage-location';
-import * as remove from './remove-from-sftp-server';
 import { serverToS3 } from './server-to-s3';
+import { SftpService } from './sftp';
+import * as sftpMock from './sftp.mock';
 import * as upload from './upload-to-s3';
 jest.mock('fs');
 jest.mock('zlib');
-jest.mock('./download-from-sftp-server');
-jest.mock('./list-from-sftp-server');
 jest.mock('./local-storage-location');
-jest.mock('./remove-from-sftp-server');
 jest.mock('./upload-to-s3');
 jest.mock('./gzip');
 const mockedFs = fs as jest.Mocked<typeof fs>;
 const mockedZlib = zlib as jest.Mocked<typeof zlib>;
-const mockedDownload = download as jest.Mocked<typeof download>;
-const mockedList = list as jest.Mocked<typeof list>;
-const mockedRemove = remove as jest.Mocked<typeof remove>;
 const mockedUpload = upload as jest.Mocked<typeof upload>;
 const mockedStorage = storage as jest.Mocked<typeof storage>;
 const mockedGzip = gzip as jest.Mocked<typeof gzip>;
@@ -32,16 +25,22 @@ const resetAll = () => {
   mockedFs.unlinkSync.mockReset();
   mockedZlib.gzipSync.mockReset();
   mockedZlib.gunzipSync.mockReset();
-  mockedDownload.downloadFromSftpServer.mockReset();
-  mockedList.listFromSftpServer.mockReset();
-  mockedRemove.removeFromSftpServer.mockReset();
   mockedUpload.uploadToS3.mockReset();
   mockedStorage.localStorageLocation.mockReset();
   mockedGzip.uncompress.mockReset();
+  sftpMock.resetSftpServiceMock();
 };
 
 describe('serverToS3', () => {
   const localDir = '/tmp/qwerty/';
+
+  beforeAll(() => {
+    container.bind(SftpService).toConstantValue(new sftpMock.SftpServiceMock());
+  });
+
+  afterAll(() => {
+    container.unbind(SftpService);
+  });
 
   [{
     compression: 'compressed',
@@ -55,14 +54,14 @@ describe('serverToS3', () => {
       const options = {
         bucket: 'my-bucket',
         keyPrefix: 'my-project/foo/year=2021/month=02/day=01/',
-        location: '/outbox',
         rm: false,
+        gunzip: false,
       };
 
       beforeAll(async () => {
         mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
-        mockedList.listFromSftpServer.mockResolvedValueOnce(item.files);
-        await serverToS3(options as ServerToS3Options);
+        sftpMock.listFn.mockResolvedValueOnce(item.files);
+        await serverToS3(options);
       });
 
       afterAll(() => {
@@ -70,13 +69,9 @@ describe('serverToS3', () => {
       });
 
       test('attempted to download files from sftp server', () => {
-        expect(mockedDownload.downloadFromSftpServer).toHaveBeenCalledTimes(item.files.length);
+        expect(sftpMock.downloadFn).toHaveBeenCalledTimes(item.files.length);
         item.files.forEach(file => {
-          expect(mockedDownload.downloadFromSftpServer).toHaveBeenCalledWith(
-            options,
-            path.join(options.location, file),
-            path.join(localDir, file),
-          );
+          expect(sftpMock.downloadFn).toHaveBeenCalledWith(file, localDir);
         });
       });
 
@@ -103,7 +98,7 @@ describe('serverToS3', () => {
         expect(mockedFs.writeFileSync).not.toHaveBeenCalled();
         expect(mockedZlib.gzipSync).not.toHaveBeenCalled();
         expect(mockedZlib.gunzipSync).not.toHaveBeenCalled();
-        expect(mockedRemove.removeFromSftpServer).not.toHaveBeenCalled();
+        expect(sftpMock.deleteFn).not.toHaveBeenCalled();
         expect(mockedGzip.uncompress).not.toHaveBeenCalled();
       });
     });
@@ -113,14 +108,14 @@ describe('serverToS3', () => {
     const options = {
       bucket: 'my-bucket',
       keyPrefix: 'my-project/foo/year=2021/month=02/day=01/',
-      location: '/outbox',
+      gunzip: false,
       rm: true,
     };
 
     beforeAll(async () => {
       mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
-      mockedList.listFromSftpServer.mockResolvedValueOnce(['foo.txt', 'bar.txt']);
-      await serverToS3(options as ServerToS3Options);
+      sftpMock.listFn.mockResolvedValueOnce(['foo.txt', 'bar.txt']);
+      await serverToS3(options);
     });
 
     afterAll(() => {
@@ -128,9 +123,9 @@ describe('serverToS3', () => {
     });
 
     test('attempted to delete files from sftp server', () => {
-      expect(mockedRemove.removeFromSftpServer).toHaveBeenCalledTimes(2);
-      expect(mockedRemove.removeFromSftpServer).toHaveBeenCalledWith(options, 'foo.txt');
-      expect(mockedRemove.removeFromSftpServer).toHaveBeenCalledWith(options, 'bar.txt');
+      expect(sftpMock.deleteFn).toHaveBeenCalledTimes(2);
+      expect(sftpMock.deleteFn).toHaveBeenCalledWith('foo.txt');
+      expect(sftpMock.deleteFn).toHaveBeenCalledWith('bar.txt');
     });
 
     test('did not call unexpected functions', () => {
@@ -146,7 +141,6 @@ describe('serverToS3', () => {
     const options = {
       bucket: 'my-bucket',
       keyPrefix: 'my-project/foo/year=2021/month=02/day=01/',
-      location: '/outbox',
       rm: false,
       gunzip: true,
     };
@@ -155,10 +149,10 @@ describe('serverToS3', () => {
 
     beforeAll(async () => {
       mockedStorage.localStorageLocation.mockReturnValueOnce(localDir);
-      mockedList.listFromSftpServer.mockResolvedValueOnce(['foo.txt.gz', 'bar.txt']);
+      sftpMock.listFn.mockResolvedValueOnce(['foo.txt.gz', 'bar.txt']);
       mockedFs.readFileSync.mockReturnValueOnce(Buffer.from(compressedContent));
       mockedZlib.gunzipSync.mockReturnValueOnce(Buffer.from(uncompressedContent));
-      await serverToS3(options as ServerToS3Options);
+      await serverToS3(options);
     });
 
     afterAll(() => {
