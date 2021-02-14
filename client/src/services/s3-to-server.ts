@@ -26,10 +26,8 @@ export const s3ToServer = async ({bucket, s3Key, gzip, rm}: S3ToServerOptions): 
 
   if (rm) {
     const remoteName = path.basename(uploadPath);
-    const alreadyExists = await sftp.exists(remoteName);
-    if (alreadyExists) {
-      await sftp.delete(remoteName);
-    }
+    await sftp.exists(remoteName)
+      .then(r => r ? sftp.delete(remoteName) : Promise.resolve(null));
   }
 
   const uploadResponse = await sftp.upload(uploadPath);

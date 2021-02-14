@@ -53,7 +53,8 @@ describe('sftp service', () => {
         });
 
         test('client can not connect to sftp host', async () => {
-          await expect(container.get(SftpService).list()).rejects.toThrow('sftpConnect: All configured authentication methods failed');
+          await expect(container.get(SftpService).list()).rejects
+            .toThrow('connect: All configured authentication methods failed after 1 attempt');
         });
       });
 
@@ -321,7 +322,7 @@ describe('sftp service', () => {
     });
 
     test('removes file from sftp server', async () => {
-      await expect(container.get(SftpService).delete(filename)).resolves.toEqual('Successfully deleted /download/foo.txt');
+      await expect(container.get(SftpService).delete(filename)).resolves.toEqual('Successfully deleted file');
     });
 
     test('file is not longer available in the host', () => {

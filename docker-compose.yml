@@ -15,7 +15,7 @@ services:
       - ./host/upload:/home/rsa_user/upload
 
   install: &install
-    image: node:alpine
+    image: node:12-alpine
     volumes:
       - ./client:/opt/code
     working_dir: /opt/code

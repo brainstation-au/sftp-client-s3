@@ -42,7 +42,6 @@ export class SftpService {
 
   public async upload (localpath: string): Promise<string> {
     const remotepath = path.join(this.location, remoteFilename(localpath, this.filename));
-    console.log(remotepath);
     return this.execute(async (client: Client): Promise<string> => {
       return client.fastPut(localpath, remotepath);
     });
